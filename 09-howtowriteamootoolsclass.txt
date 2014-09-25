@@ -1,0 +1,1029 @@
+====== How to write a Mootools Class ======
+Here's a line-by-line, step-by-step walk-through of me writing a class. The actual class in this example, a slideshow, is [[http://clientside.cnet.com/wiki/cnet-libraries/08-layout/04-simpleslideshow|in our common library]] and has more functionality than this example.
+
+
+<html>
+<p><b>NOTE:</b> Be sure to click the <b>show comments</b> link in each step to see detailed commentary on what's happening in each section.</p>
+
+	<script>
+
+var SimpleSlideShowDemo = new Class({
+	Implements: [Options, Events],
+	options: {
+		slides: [],
+		startIndex: 0,
+		wrap: true
+		//onShow: $empty
+	},
+	initialize: function(options){
+		this.setOptions(options)
+		this.addSlides(this.options.slides);
+		if(this.slides.length) this.showSlide(this.options.startIndex);
+	},
+	slides: [],
+	addSlides: function(slides){
+		$$(slides).each(function(slide){
+			this.slides.include($(slide));
+			slide.addEvent('click', this.cycleForward.bind(this));
+		}, this);
+	},
+	addSlide: function(slide){
+		this.addSlides($splat($(slide)));
+	},
+	cycleForward: function(){
+		if($chk(this.now) && this.now < this.slides.length-1) this.showSlide(this.now+1);
+		else if ((this.now) && this.options.wrap) this.showSlide(0);
+		else if(!$defined(this.now)) this.showSlide(this.options.startIndex);
+	},
+	cycleBack: function(){
+		if(this.now > 0) this.showSlide(this.now-1);
+		else if(this.options.wrap) this.showSlide(this.slides.length-1);
+	},
+	showSlide: function(iToShow){
+		if (this.fading) return;
+		var now = this.now;		
+		var currentSlide = this.slides[now];
+		var slide = this.slides[iToShow];
+		var fadeIn = function (s){
+			this.fading = true;
+			s.set('styles', {
+				display:'block',
+				visibility: 'visible',
+				opacity: 0
+			});
+			s.get('tween').start('opacity', 1).chain(function(){
+				this.fading = false;
+				this.fireEvent('onShow', [slide, iToShow]);
+			}.bind(this));
+		}.bind(this);
+		if(slide) {
+			if($chk(now) && now != iToShow){
+				this.fading = true;
+				currentSlide.get('tween').start('opacity', 0).chain(function(){
+					currentSlide.setStyle('display', 'none');
+					fadeIn(slide);
+				}.bind(this));
+			} else fadeIn(slide);
+			this.now = iToShow;
+		}
+	}
+});
+
+
+var SimpleImageSlideShowDemo = new Class({
+	Extends: SimpleSlideShowDemo,
+	options: {
+		imgUrls: [],
+		container: false
+	},
+	initialize: function(options){
+		this.parent(options);
+		this.container = $(this.options.container);
+		if(!this.container) return;
+		this.options.imgUrls.each(this.addImg.bind(this));
+		this.showSlide(this.options.startIndex);
+	},
+	addImg: function(url){
+		var img = new Element('img', {
+				src: url,
+				styles: {
+					display: 'none'
+				}
+			}).inject($(this.options.container))
+		this.addSlide(img);
+	}
+});
+
+window.addEvent('domready', function(){
+	/*	slide show demo	*/
+	new SimpleSlideShowDemo({
+		slides: $$('div.slide')
+	});
+	
+	/*	image slide show demo	*/
+	new SimpleImageSlideShowDemo({
+		imgUrls: [
+			"http://download.com/i/dl/media/dlimage/10/87/78/108778_medium.jpeg",
+			"http://download.com/i/dl/media/dlimage/10/87/79/108779_medium.jpeg",
+			"http://download.com/i/dl/media/dlimage/10/87/81/108781_medium.jpeg"
+		],
+		container: $('imgContainer')
+	});
+	
+	
+	/*	these are the tabs across the top of the page	*/
+	new TabSwapper({
+		selectedClass: "selected",
+		tabs: "a.tab",
+		sections: "div.javascript",
+		smooth: true,
+		smoothSize: true
+	});
+	
+	/*	this is to hide/show the comments	*/
+	$$('div.javascript').each(function(block){
+		var details = block.getElements('div.details');
+		var lnk = new Element('a', {
+				styles: {
+					'float': 'right',
+					cursor: 'pointer',
+					display: 'block',
+					position: 'relative',
+					top: -8,
+					right: 8
+				},
+				events: {
+					click: function(){
+						details.each(function(d){
+							d.get('reveal').toggle();
+							if (this.get('html') == 'show comments') this.set('html', 'hide comments');
+							else this.set('html', 'show comments');
+							var position = $(details[0]).getPosition(window);
+							new Fx.Scroll(window).start(position.x, position.y - 200);
+						}, this);
+					}
+				}
+			}).appendText('show comments').inject(block.getFirst(), 'before');
+	});
+});
+
+	</script>
+	<style>
+
+#menu {
+	display:none;
+}
+#main {
+	width: 740px;
+}
+
+/* GeSHi (c) Nigel McNie 2004 (http://qbnz.com/highlighter) */
+/* GeSHi (c) Nigel McNie 2004 (http://qbnz.com/highlighter) */
+.javascript .de1, .javascript .de2 {font-family: 'Courier New', Courier, monospace; font-weight: normal;}
+.javascript  {font-family: monospace;}
+.javascript .imp {font-weight: bold; color: red;}
+.javascript .ln-xtra {color:black;background:#f9f4d2;}
+.javascript li {background: #ffffff;}
+.javascript .kw1 {color: #000066; font-weight: bold;}
+.javascript .kw2 {color: #003366; font-weight: bold;}
+.javascript .kw3 {color: #000066;}
+.javascript .co1 {color: #009900; font-style: italic;}
+.javascript .coMULTI {color: #009900; font-style: italic;}
+.javascript .es0 {color: #000099; font-weight: bold;}
+.javascript .br0 {color: #66cc66;}
+.javascript .st0 {color: #3366CC;}
+.javascript .nu0 {color: #CC0000;}
+.javascript .me1 {color: #006600;}
+.javascript .re0 {color: #0066FF;}
+		div.details {
+			background-color: #99ffff;
+			margin: 8px;
+			padding: 0px;
+			display: none;
+		}
+		.slide {
+			border: 1px solid black;
+			width: 200px;
+			height: 200px;
+			display:none;
+			visibility: hidden;
+		}
+		a.tab {
+			cursor: pointer;
+			border: 1px solid #888;
+			background-color: #eee;
+			color: #ff6600;
+			margin: 1px;
+			padding: 4px;
+			width: 75px;
+			font-size:10px;
+		}
+		a.selected {
+			background-color: #777 !important;
+			color: #fff !important;
+		}
+		div.javascript {
+			margin-top: 8px;
+			padding-top: 8px;
+		}
+		div.javascript ol {
+			padding-left: 40px;
+		}
+	</style>
+
+
+
+	<div>
+		<a class="tab">step 1</a>
+		<a class="tab">step 2</a>
+		<a class="tab">step 3</a>
+		<a class="tab">step 4</a>
+		<a class="tab">step 5</a>
+		<a class="tab">step 6</a>
+		<a class="tab">step 7</a>
+		<a class="tab">step 8</a>
+		<a class="tab">step 9</a>
+		<a class="tab">step 10</a>
+		<a class="tab">demo</a>
+	</div>
+
+	<div class="javascript">
+		<div class="details">
+	<p>Here we have the start of nearly every class I ever write. The class will have options, events, and an initialization phase. The options and events are optional of course, but unless I'm writing something that has only one use, there will be options and events.</p>
+
+	<p>Providing these hooks into your classes, even if you're only writing them for yourself, will make them much more reusable.</p>
+		</div>
+
+		<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+		<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+		<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+		<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+		<li class="li2"><div class="de2"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+	</div>
+	
+	
+	
+	
+	
+	<div class="javascript">
+		<div class="details">
+			<p>Ok, we're writing a slideshow, so what do we know from the start we're going to have in such a class? Well, slides for sure, right? Additionally, let's also give the user (i.e. the person creating an instance of this class, not the person looking at it in their browser who I'll refer to as the "viewer") the option to specify where in the list the slideshow should start and if the slideshow should wrap around and go back to the start when it reaches the end of the list.</p>
+
+			<p>These options specify the default state of these values, but the user can overwrite them with their own. This functionality is provided by the <a href="http://www.mootorial.com/wiki/mootorial/02-class/01-class.extras#the-options-class"><i>Options</i> class</a>. When we do <i>Implements: Options</i> we add this convention and functionality to our class. We can then execute <i>this.setOptions(options)</i> and the user's values will overwrite the default state, but if the user only specifies a portion of these, then the remaining defaults will still apply.</p>
+
+			<p>It's important to note that Options are just that: optional. If you have content that is required for your class to work, you should probably make these arguments that are passed to the initialization phase of your class. Here I could have made the slides required, except that I want to be able to add slides later, which means that I could create a slideshow with no slides and then add more at some later point. This makes the slides optional.</p>
+		</div>
+
+		<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+		<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+		<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+		<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+		
+		<div class="details">
+			<p>Next we set the options. Even if the user didn't pass an argument, it's ok to pass a <i>null</i> or <i>undefined</i> value to <i>setOptions</i>. You can also pass more than one object in, but we don't need to here.</p>
+		</div>
+
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+		<div class="details">
+			<p>Now I'm going to add slides for the array of slides that the user passed in. If the user didn't pass any in, then it's an empty array (the default) so nothing will happen.</p>
+		</div>
+		<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+		<div class="details">
+			<p>If there are any slides, we're going to show the first one specified in the options.</p>
+		</div>
+		<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+		<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+		<div class="details">
+			<p>Here I set up a member of this class for all the slides. I could just set it to <i>this.options.slides</i> but in this case I want to actually process the slides passed in through a method that I'll write in the next step. By having this logic in a seperate method, the user can add slides at any point.</p>
+		</div>
+		<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span></div></li>
+		<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+	</div>
+	
+	
+	
+	
+	<div class="javascript">
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<div class="details">
+		<p>Ok. So we pass <i>addSlides</i> an array of dom elements to add. We loop through this array using <i>.each</i> and, for each one, we add it to the array of slides we're maintaining as <i>this.slides</i>. We use <i>Array.include</i> so that we don't have any duplicates.</p>
+		<p>Note that I run the array through $$. If it's already a collection nothing will happen - it just returns the collection, but if it's not a collection, it'll add all the Moo functions to the elements. This means that users also have the option of passing in a selector if they choose.</p>
+	</div>
+	
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<div class="details">
+		<p>Using <a href="http://www.mootorial.com/wiki/mootorial/03-native/00-array#array.each"><i>Array.each</i></a>, we iterate over the slides. Here is an important thing to understand about binding: the <b>this</b> monicker. Inside a class, <b>this</b> refers to the instance of the class. So, for instance, "var SomeClass = new Class({...});" is a class. Then "var instanceOfSomeClass = new SomeClass();" creates an instance of it.</p>
+		<p>To refer to members of that instance, we use the <b>this</b> keyword. <b>this</b> doesn't refer to <i>SomeClass</i>, it refers to <i>instanceOfSomeClass</i>.</p>
+		<p>Inside a function, any function, <b>this</b> refers to that function, <i>except</i> when that function is a <i>method</i> (i.e. the member of an object, as with our class). So with <i>Array.each</i>, you pass it two arguments, the first is the function you want to execute for each item in the array, and the second thing is the object you want to bind <b>this</b> to.</p>
+		<p>You need this binding because otherwise the function you are executing would have <b>this</b> bound to itself, not your class. As a side note, you only need to specify this binding when you refer to <b>this</b> in the function; if you don't reference your Class's methods or properties, then you don't need to bind anything (it won't hurt anything if you do). <a href="http://www.mootorial.com/wiki/mootorial/03-native/01-function#function.bind">More on binding</a>.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<div class="details">
+		<p>I include this slide into the array of slides for the class. Using <i>Array.include</i> I add the slide to the array only if it's not already there.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>Here's where we specify the <b>this</b> for binding.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<div class="details">
+		<p>Because I like to provide such things, I also include a method to add a single slide. All this does is wrap the element in an array (with <i>$splat</i>) and call <i>.addSlides</i>.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+
+
+	
+
+
+
+
+	</div>	
+	<div class="javascript">
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<div class="details">
+		<p>So the user has to have a way to go through the slideshow. Now, in the real example of this class (<i><a href="http://www.clientcide.com/wiki/cnet-libraries/08-layout/04-simpleslideshow">SimpleSlideShow</a></i> in CNET's common library), I let the user specify dom elements for next and previous behavior. For this example, let's just attach the behavior to the slide. If the user clicks the slide, we cycle forward.</p>
+		<p><i><a href="http://www.mootorial.com/wiki/mootorial/04-element/01-element.event#element.addevent-addevents">Element.addEvent</a></i> attaches your function to the element's event handler, but by default it binds that function to the element, so the <b>this</b> in the attached function is the element, but we need it to be this class (our slide show class), so when we add the event we have to bind our class to the function.</p>
+		<p>Note that, unlike <i>Array.each</i>, we must use the <i>.bind</i> method here, as <i>addEvent</i> does not accept a third argument for binding.
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slide.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'click'</span>, <span class="kw1">this</span>.<span class="me1">cycleForward</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+
+
+
+	</div>	
+	<div class="javascript">
+
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slide.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'click'</span>, <span class="kw1">this</span>.<span class="me1">cycleForward</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<div class="details">
+		<p>Cycle forward, cycle back. In this short example I actually don't define a way for the user to cycle back - they can only cycle forward, but in real life I use the next/previous links specified in the options to allow the user to go either way.</p>
+	</div>
+	
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleForward: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+<div class="details">
+If this.now is defined (the current index of the visible slide), and we can still increment, then show the next slide...
+</div>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">now</span> &lt; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">+1</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>...else, if this.now is "truthy" (i.e. defined and not null and not zero) and we're allowed to wrap, go back to zero...</p>
+	</div>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span> <span class="br0">(</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="nu0">0</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>...else, in theory, this.now isn't defined because we've never shown a slide before, so let's just show the first one set in the options.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span>!$defined<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>This class doesn't make use of it, but I went ahead and wrote a method to cycle in the other direction. It assumes that cycleForward has been called at least once (as it's called when you initialize the class) and, thus, that this.now has a value. In the real class (SimpleSlideShow) I let the user pass in references to dom elements for next/previous links.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleBack: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+	
+	</div>	
+	<div class="javascript">
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slide.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'click'</span>, <span class="kw1">this</span>.<span class="me1">cycleForward</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleForward: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">now</span> &lt; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">+1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span> <span class="br0">(</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="nu0">0</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span>!$defined<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleBack: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<div class="details">
+		<p>Showing a slide just means we set the css property "display" to "block" for the slide to show and set display to "none" for everything else.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; showSlide: <span class="kw2">function</span><span class="br0">(</span>iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+	<div class="details">
+		<p>If the slide index passed in is in our list of available slides, then show this slide. In case this is the first attempt to show a slide, <i>this.now</i> won't be defined, so only hide the current slide if it's defined (if we didn't test for this, we'd try and execute <i>.setStyle</i> on <i>undefined</i> and we'd get an error).</p>
+	</div>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>iToShow<span class="br0">]</span><span class="br0">)</span> <span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">]</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">]</span>.<span class="me1">setStyle</span><span class="br0">(</span><span class="st0">'display'</span>,<span class="st0">'none'</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>iToShow<span class="br0">]</span>.<span class="me1">setStyle</span><span class="br0">(</span><span class="st0">'display'</span>,<span class="st0">'block'</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">now</span> = iToShow;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+
+	</div>	
+	<div class="javascript">
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slide.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'click'</span>, <span class="kw1">this</span>.<span class="me1">cycleForward</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleForward: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">now</span> &lt; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">+1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span> <span class="br0">(</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="nu0">0</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span>!$defined<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleBack: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<div class="details">
+		<p>Of course, just showing the thing is no fun. We want to cross-fade these things. There are numerous ways to handle this transition, but let's try and keep it simple. We want the visible slide to fade out and, when its finished, we want the next slide to fade in.</p>
+	</div>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; showSlide: <span class="kw2">function</span><span class="br0">(</span>iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+	<div class="details">
+		<p>When we get down a few lines you'll see that we set <i>this.now</i> to the slide we're about to show (<i>iToShow</i>). This way our class knows which slide is visible at any time.</p>
+
+		<p>But we've got a new wrinkle here: the transition. Because the transition takes time, we can't refer to <i>this.now</i> because it will change immediately, while our transition takes time. More on this in a sec, but this is why I declare this variable <i>now</i> within this method, to keep it from being poluted.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> now = <span class="kw1">this</span>.<span class="me1">now</span>;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; </div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> currentSlide = <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>now<span class="br0">]</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> slide = <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>iToShow<span class="br0">]</span>;</div></li>
+	<div class="details">
+		<p>Here's an example of a <a href="http://www.jibbering.com/faq/faq_notes/closures.html">closure</a>. This method, <i>fadeIn</i>, is going to reference values already declared here, but we want to fade in the next slide only after the current one has faded out. By declaring the function now, at execution time, the function has access to all the variables in scope (within this method). So even though the function is called later (after the fade out of the previous slide), it still has references to all the values defined here.</p>
+
+		<p>All this function does is change the styles so that the element is displayed as block (so it's in the layout flow) but hidden (opacity: 0), then tweens the opacity from 0 to 1.</p>
+
+		<p>Note that this function didn't have to be named - I could have just executed it anonymously below. The only reason I declared it here is because I reference it twice and I didn't want to duplicate the code.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> fadeIn = <span class="kw2">function</span> <span class="br0">(</span>s<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s.<span class="me1">setStyles</span><span class="br0">(</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; display:<span class="st0">'block'</span>,</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; visibility: <span class="st0">'visible'</span>,</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; opacity: <span class="nu0">0</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span><span class="br0">)</span>;</div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s.<span class="me1">get</span><span class="br0">(</span><span class="st0">'tween'</span><span class="br0">)</span>.<span class="me1">start</span><span class="br0">(</span><span class="st0">'opacity'</span>, <span class="nu0">1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>Note that in the line above I bind <b>this</b> to my function here to ensure that any references to <b>this</b> point to my instance of this class.</p>
+	</div>
+	
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>slide<span class="br0">)</span> <span class="br0">{</span></div></li>
+	<div class="details">
+		<p>The first time this method is called there isn't a slide visible, so there's nothing to fade out. If that's not the case (because this isn't the first time) we're going to fade out the current one and then fade in the next one.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span>now<span class="br0">)</span> &amp;&amp; now != iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+	<div class="details">
+		<p>We fade out the existing slide and then, using <a href="http://www.mootorial.com/wiki/mootorial/02-class/01-class.extras#the-chain-class"><i>Chain</i></a>, execute our functions to fade in the next slide.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentSlide.<span class="me1">get</span><span class="br0">(</span><span class="st0">'tween'</span><span class="br0">)</span>.<span class="me1">start</span><span class="br0">(</span><span class="st0">'opacity'</span>, <span class="nu0">0</span><span class="br0">)</span>.<span class="me1">chain</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+	<div class="details">
+		<p>Now that the current slide is hidden, we can set its display to "none". Our opacity effect just makes it transparent, but before we show the next slide, we need to take the current one out of the page flow.</p>
+	</div>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentSlide.<span class="me1">setStyle</span><span class="br0">(</span><span class="st0">'display'</span>, <span class="st0">'none'</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>Now we fade in the next slide using the <i>fadeIn</i> function above.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; fadeIn<span class="br0">(</span>slide<span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>Note that we need to use <i>.bind(this)</i> here because, within this function (that we're passing to <i>.chain</i>) we need to reference the instance of this class. Some methods will let you pass in a bind object - like <i>Array.each</i> or <a href="http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Function:apply"><i>Function.apply</i></a>. When this isn't available, you must use <i>.bind(<b>this</b>)</i> to acheive this effect.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>If we're here either <i>now</i> is undefined, or the slide is already visible. In either case, calling <i>fadeIn</i> immediately will either fade in the slide, or, if it's already visible, have no effect.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span> <span class="kw1">else</span> fadeIn<span class="br0">(</span>slide<span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>And then we save <i>this.now</i> to reflect which item is now visible. Because we reference <i>now</i> in the <i>chain</i> above (in other words, we reference <i>now</i> after the visible slide finishes hiding), we can't reference <i>this.now</i>, because this next line is executed immediately, while the chained code is executed when the slide finishes fading out.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">now</span> = iToShow;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+
+	</div>	
+	
+	
+	<div class="javascript">
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+	<div class="details">
+		<p>The <a href="http://www.mootorial.com/wiki/mootorial/02-class/01-class.extras#the-events-class"><i>Events</i></a> class let's you add custom events to your classes. These are really powerful and make your code a lot more reusable. I recommend adding these events at any point in your code that the viewer or some other system can effect a change. onShow, onHide, onComplete, onStart, onError, etc. These hooks let others (and you, too) tie the behavior of this class in with their own in a non-obtrusive manner. You can't have too many of these events.</p>
+
+		<p>Because we implemented <i>Options</i> into this class, we inherit some help from that class with regard to Events. If you have any options that start with "on", when you call <i>this.setOptions(options)</i> - a function defined by the <i>Options class</i> - they will automatically be set up as Events. Here I create an event for <i>onShow</i>. In the actual class that I wrote for production, I have <i>onNext</i>, <i>onPrev</i>, and <i>onSlideClick</i>. Note that you can also attach methods to these events using <i>addEvent</i>.</p>
+
+		<p>Just having this event in the options doesn't do anything. We still have to execute it. See line 45.</p>
+		
+		<p>For the default value we hand it an empty function. This can be executed and nothing will happen. It's basically the same as setting this value to <i>function(){}</i>. The <i>setOptions</i> method finds any options that begin with "on" with values that are functions and adds them as events to your class. It also then removes that value from the options entirely, so instances of this class will not have a value for <i>this.options.onShow</i> after the options are set. Because of this, it's common practice to comment out the line (since it's just an empty function that's going to be removed anyway). The commented line is left only so that it's easy to read the code itself and know what options are available instead of having to look through the rest of the class for any <i>fireEvent</i> calls. This commented line is then removed when the file is compressed to be delivered to the browser (another common practice).</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="co1">//onShow: $empty</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slide.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'click'</span>, <span class="kw1">this</span>.<span class="me1">cycleForward</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleForward: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">now</span> &lt; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">+1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span> <span class="br0">(</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="nu0">0</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span>!$defined<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleBack: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; showSlide: <span class="kw2">function</span><span class="br0">(</span>iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+	<div class="details">
+		<p>Hmmm. We have one little problem with our class thus far. By adding the delay that occurs when we fade out the previous image and fade in the current one, we introduce the possibility that the user might click either of them (the image fading out or the one fading in) while that's in progress.</p>
+		<p>There are two ways to deal with this problem. The first is to use the <i>Chain</i> class to stack up cycle requests. If the user clicks while we're in the middle of showing a slide, we add the new request to the chain and, when the current transition completes we call the next request on the chain. I do this in a lot of places (<i>Fx.Reveal</i>, <i>IconMenu</i>, etc) but I don't want to introduce that complexity here in this tutorial.</p>
+		<p>The other way to deal with this is to just ignore requests that occur during the transition. This means that if we're in the middle of showing a slide and the user clicks, we don't do anything. Because this solution is much less complex, I'm going to use it here.</p>
+		<p>This just means we must set a flag that we're in the middle of a transition (<i>this.fading = true</i>) and then set it to <i>false</i> when the transition is complete. Any requests to show a slide that occurs while we're in transition is ignored with this next line.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span> <span class="br0">(</span><span class="kw1">this</span>.<span class="me1">fading</span><span class="br0">)</span> <span class="kw1">return</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> now = <span class="kw1">this</span>.<span class="me1">now</span>;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; </div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> currentSlide = <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>now<span class="br0">]</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> slide = <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>iToShow<span class="br0">]</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> fadeIn = <span class="kw2">function</span> <span class="br0">(</span>s<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fading</span> = <span class="kw2">true</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s.<span class="me1">setStyles</span><span class="br0">(</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; display:<span class="st0">'block'</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; visibility: <span class="st0">'visible'</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; opacity: <span class="nu0">0</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>We're going to have to tell the class when to fire the "onShow" event we added to the options. I want this event to be called <i>after</i> the image fades in. Why? Because any code that makes use of this event expects the user to be able to see the next slide. I might also add an event that is fired before the effect, in case someone wants to execute something then, but for our example, we'll just use this one event.</p>
+		<p>To execute a method after an effect (like <i>Fx.Tween</i>) we use the <i>Chain</i> class methods that <i>Fx</i> implements.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s.<span class="me1">get</span><span class="br0">(</span><span class="st0">'tween'</span><span class="br0">)</span>.<span class="me1">start</span><span class="br0">(</span><span class="st0">'opacity'</span>, <span class="nu0">1</span><span class="br0">)</span>.<span class="me1">chain</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fading</span> = <span class="kw2">false</span>;</div></li>
+	<div class="details">
+		<p>The <i>Events</i> class, which we implemented into this one, provides us with a method to fire events. It takes as arguments the event name to fire (with the "on" removed - eg. "onShow" becomes just "show"), any arguments to pass to the callback function (more than one argument should be in an array) - this argument is optional, and an optional delay (in milleseconds). Here I pass along the slide DOM element and the index. I should note this in my documentation so others will know what arguments are sent to this event.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fireEvent</span><span class="br0">(</span><span class="st0">'onShow'</span>, <span class="br0">[</span>slide, iToShow<span class="br0">]</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>slide<span class="br0">)</span> <span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span>now<span class="br0">)</span> &amp;&amp; now != iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fading</span> = <span class="kw2">true</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentSlide.<span class="me1">get</span><span class="br0">(</span><span class="st0">'tween'</span><span class="br0">)</span>.<span class="me1">start</span><span class="br0">(</span><span class="st0">'opacity'</span>, <span class="nu0">0</span><span class="br0">)</span>.<span class="me1">chain</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentSlide.<span class="me1">setStyle</span><span class="br0">(</span><span class="st0">'display'</span>, <span class="st0">'none'</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; fadeIn<span class="br0">(</span>slide<span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span> <span class="kw1">else</span> fadeIn<span class="br0">(</span>slide<span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">now</span> = iToShow;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+
+	</div>
+	
+	
+	
+	<div class="javascript">
+	
+	<ol><li class="li1"><div class="de1"><span class="kw2">var</span> SimpleSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; Implements: <span class="br0">[</span>Options, Events<span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; startIndex: <span class="nu0">0</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; wrap: <span class="kw2">true</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="co1">//onShow: $empty</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">setOptions</span><span class="br0">(</span>options<span class="br0">)</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">slides</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; slides: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlides: <span class="kw2">function</span><span class="br0">(</span>slides<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; $$<span class="br0">(</span>slides<span class="br0">)</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">include</span><span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slide.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'click'</span>, <span class="kw1">this</span>.<span class="me1">cycleForward</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>, <span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addSlide: <span class="kw2">function</span><span class="br0">(</span>slide<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlides</span><span class="br0">(</span>$splat<span class="br0">(</span>$<span class="br0">(</span>slide<span class="br0">)</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleForward: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">now</span> &lt; <span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">+1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span> <span class="br0">(</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span> &amp;&amp; <span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="nu0">0</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span>!$defined<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="br0">)</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; cycleBack: <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span> &gt; <span class="nu0">0</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">now</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">else</span> <span class="kw1">if</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">wrap</span><span class="br0">)</span> <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">slides</span>.<span class="me1">length</span><span class="nu0">-1</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; showSlide: <span class="kw2">function</span><span class="br0">(</span>iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span> <span class="br0">(</span><span class="kw1">this</span>.<span class="me1">fading</span><span class="br0">)</span> <span class="kw1">return</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> now = <span class="kw1">this</span>.<span class="me1">now</span>;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; </div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> currentSlide = <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>now<span class="br0">]</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> slide = <span class="kw1">this</span>.<span class="me1">slides</span><span class="br0">[</span>iToShow<span class="br0">]</span>;</div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> fadeIn = <span class="kw2">function</span> <span class="br0">(</span>s<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fading</span> = <span class="kw2">true</span>;</div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s.<span class="me1">setStyles</span><span class="br0">(</span><span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; display:<span class="st0">'block'</span>,</div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; visibility: <span class="st0">'visible'</span>,</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; opacity: <span class="nu0">0</span></div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span><span class="br0">)</span>;</div></li>
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; s.<span class="me1">get</span><span class="br0">(</span><span class="st0">'tween'</span><span class="br0">)</span>.<span class="me1">start</span><span class="br0">(</span><span class="st0">'opacity'</span>, <span class="nu0">1</span><span class="br0">)</span>.<span class="me1">chain</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fading</span> = <span class="kw2">false</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fireEvent</span><span class="br0">(</span><span class="st0">'onShow'</span>, <span class="br0">[</span>slide, iToShow<span class="br0">]</span><span class="br0">)</span>;</div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span>;</div></li>
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>slide<span class="br0">)</span> <span class="br0">{</span></div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>$chk<span class="br0">(</span>now<span class="br0">)</span> &amp;&amp; now != iToShow<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">fading</span> = <span class="kw2">true</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentSlide.<span class="me1">get</span><span class="br0">(</span><span class="st0">'tween'</span><span class="br0">)</span>.<span class="me1">start</span><span class="br0">(</span><span class="st0">'opacity'</span>, <span class="nu0">0</span><span class="br0">)</span>.<span class="me1">chain</span><span class="br0">(</span><span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; currentSlide.<span class="me1">setStyle</span><span class="br0">(</span><span class="st0">'display'</span>, <span class="st0">'none'</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; fadeIn<span class="br0">(</span>slide<span class="br0">)</span>;</div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span> <span class="kw1">else</span> fadeIn<span class="br0">(</span>slide<span class="br0">)</span>;</div></li>
+
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">now</span> = iToShow;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+	<li class="li1"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1"><div class="de1">&nbsp;</div></li>
+	<li class="li1"><div class="de1">&nbsp;</div></li>
+	<div class="details">
+		<p>We now have a complete and working slideshow, but let's say later we come back and we want to make a slide show that focues on images in particular. Let's say we want to be able to just hand it an array of urls to images and have it do the rest. Rather than copying all the code above we can extend it to add more functionality.</p>
+		<p>This is good for a lot of obvious reasons, but it helps to go out of your way to think this way. Try and make classes (and functions and methods) do one thing well. Then build more functions and classes to add more functionality. By doing this we not only cut down on code bloat, but you open up possibilities for other uses that you may not foresee now.</p>
+		<p>Here I create a new class called <i>SimpleImageSlideShowDemo</i>. This new class uses as it's foundation - or "parent" - the class we wrote above. We use <a href="http://www.mootorial.com/wiki/mootorial/02-class#extending-classes"><i>Class.extend</i></a> to do this.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1"><span class="kw2">var</span> SimpleImageSlideShowDemo = <span class="kw2">new</span> <span class="kw2">Class</span><span class="br0">(</span><span class="br0">{</span></div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">Extends</span>: SimpleSlideShowDemo,</div></li>
+
+
+	<div class="details">
+		<p>Options declared here get blended in to the options for the parent class, so in addition to these options here, this class also has all the options defined in <i>SimpleSlideShowDemo</i>.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; options: <span class="br0">{</span></div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; imgUrls: <span class="br0">[</span><span class="br0">]</span>,</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; container: <span class="kw2">false</span></div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<div class="details">
+		<p>We have to be careful here, because we're using the same namespace as a method defined in our parent class. This will overwrite that parent class's method (<i>initialize</i>) and we need that to work.</p>
+		<p>We can execute the functionality contained in the parent's version of this method by calling <i>this.parent()</i>. This can happen near the beginning, end, or in the middle of our method here. In this case, I want the parent's version of <i>initialize</i> to fire before the rest of my code, so I call it first. Also note that I don't call <i>this.setOptions(options)</i> here, because that is executed in the parent method.</p>
+		<p>When you call <i>this.parent()</i> you need to pass to it the arguments that it expects. So if our <i>initialize</i> method here took several arguments, but the parent <i>initialize</i> method only expects one, we must pass the appropriate arguments along up to it.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; initialize: <span class="kw2">function</span><span class="br0">(</span>options<span class="br0">)</span><span class="br0">{</span></div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">parent</span><span class="br0">(</span>options<span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">container</span> = $<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">container</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">if</span><span class="br0">(</span>!<span class="kw1">this</span>.<span class="me1">container</span><span class="br0">)</span> <span class="kw1">return</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">imgUrls</span>.<span class="me1">each</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">addImg</span>.<span class="me1">bind</span><span class="br0">(</span><span class="kw1">this</span><span class="br0">)</span><span class="br0">)</span>;</div></li>
+	<div class="details">
+		<p>In the parent version of this method we already tell it to show the first slide (defined in the options as startIndex). We have to do it again here because it's possible (if not probable) that the user didn't pass in any images or slides already in the DOM but rather passed in an array of urls. Thus, the parent method wouldn't have any slides when we executed <i>this.parent(options)</i>. After we added all the images in the line above, we'd still need to show one.</p>
+	</div>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">showSlide</span><span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">startIndex</span><span class="br0">)</span>;</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span>,</div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; addImg: <span class="kw2">function</span><span class="br0">(</span>url<span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">var</span> img = <span class="kw2">new</span> Element<span class="br0">(</span><span class="st0">'img'</span>, <span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; src: url,</div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; styles: <span class="br0">{</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; display: <span class="st0">'none'</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span><span class="br0">)</span>.<span class="me1">inject</span><span class="br0">(</span>$<span class="br0">(</span><span class="kw1">this</span>.<span class="me1">options</span>.<span class="me1">container</span><span class="br0">)</span><span class="br0">)</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="kw1">this</span>.<span class="me1">addSlide</span><span class="br0">(</span>img<span class="br0">)</span>;</div></li>
+	<li class="li1 ln-xtra"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span></div></li>
+
+	<li class="li1 ln-xtra"><div class="de1"><span class="br0">}</span><span class="br0">)</span>;</div></li></ol>
+
+
+	</div>	
+	<div class="javascript">
+
+	<div class="details">
+		<p>We have two classes, but that doesn't actually, you know, <i>do anything</i>. We need to create instances of those classes with the content on our page.</p>
+	
+		<p>Because we need to reference content in the DOM, we have to wait for that content to have loaded. This is where the custom event "<a href="http://www.mootorial.com/wiki/mootorial/05-utilities/01-domready">domready</a>" comes in to play. This is an event Mootools adds to the window element that fires as soon as the DOM is ready, but before all the images and stuff load (that event is "onload"). By using domready, our code should execute at about the same time as the browser starts to draw the page.</p>
+	</div>
+
+	
+<ol><li class="li1"><div class="de1">window.<span class="me1">addEvent</span><span class="br0">(</span><span class="st0">'domready'</span>, <span class="kw2">function</span><span class="br0">(</span><span class="br0">)</span><span class="br0">{</span></div></li>
+
+	<div class="details">
+		<p>Here's a new instance of our basic slide show. I pass it the dom elements returned when I search for all divs with the class "slide" - in this case, there are 5 of them.</p>
+	</div>
+
+
+<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">new</span> SimpleSlideShowDemo<span class="br0">(</span><span class="br0">{</span></div></li>
+
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; slides: $$<span class="br0">(</span><span class="st0">'div.slide'</span><span class="br0">)</span></div></li>
+<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span><span class="br0">)</span>;</div></li>
+
+	<div class="details">
+		<p>And here's an image slideshow. I pass it a handful of urls and a container into which the images should be placed.</p>
+	</div>
+
+
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; </div></li>
+<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; <span class="kw2">new</span> SimpleImageSlideShowDemo<span class="br0">(</span><span class="br0">{</span></div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; imgUrls: <span class="br0">[</span></div></li>
+
+<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">"http://download.com/i/dl/media/dlimage/10/87/78/108778_medium.jpeg"</span>,</div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">"http://download.com/i/dl/media/dlimage/10/87/79/108779_medium.jpeg"</span>,</div></li>
+
+<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="st0">"http://download.com/i/dl/media/dlimage/10/87/81/108781_medium.jpeg"</span></div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">]</span>,</div></li>
+
+<li class="li2"><div class="de2">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; container: $<span class="br0">(</span><span class="st0">'imgContainer'</span><span class="br0">)</span></div></li>
+<li class="li1"><div class="de1">&nbsp; &nbsp; &nbsp; &nbsp; <span class="br0">}</span><span class="br0">)</span>;</div></li>
+
+<li class="li2"><div class="de2"><span class="br0">}</span><span class="br0">)</span>; </div></li></ol>
+	</div>	
+	<div class="javascript" id="demo">
+			<div class="slide">slide 1</div>
+			<div class="slide">slide 2</div>
+			<div class="slide">slide 3</div>
+			<div class="slide">slide 4</div>
+			<div class="slide">slide 5</div>
+			<br /><br />
+			<div id="imgContainer"></div>
+	</div>	
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+</html>

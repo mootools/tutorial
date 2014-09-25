@@ -1,0 +1,104 @@
+====== Hash ======
+Here is the [[http://mootools.net/docs/core/Types/Object|documentation for Hash.js]].
+
+The //Hash// returns a hash map object with various helper functions for managing a JavaScript object. We must use //.set//, //.get//, and //.remove// to add/change, retrieve and remove values; we must not access the internal object directly. null values are allowed. Pass in an object to convert to a Hash.
+
+<code javascript>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+</code>
+
+===== Hash.set, .get, .remove =====
+These functions must be used to interact with the data in a //Hash//.
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+hash.set('a', 'blah');
+hash.remove('b');
+console.log(hash.get('a')); /*blah*/
+console.log(hash.get('b')); /*undefined*/
+</code>
+
+===== Hash.has =====
+Check for a key in the map.
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+console.log(hash.has('c')); /* true */
+console.log(hash.has('d')); /* false */
+</code>
+
+===== Hash.hasValue =====
+Checks for a value in the map.
+
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+console.log(hash.hasValue('hi')); /* true */
+console.log(hash.hasValue('Guttentag!')); /* false */
+</code>
+
+===== Hash.each =====
+Iterate over the //Hash// and execute a function for the value of each property. Takes as an optional second argument (the first is the function) a bind object.
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+/*alert 'hi', 'world', and 'howdy'*/
+hash.each(function(val){
+	alert(val);
+});
+</code>
+
+===== Hash.keyOf =====
+//Hash.keyOf// returns the key for a specified value:
+
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+hash.keyOf('howdy'); //c
+</code>
+
+===== Hash.extend, Hash.combine =====
+Add the key values of the passed in object to the hash map. **Duplicate values are overwritten.**
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+hash.extend({c:'blah', d:'something'});
+/*hash now has a, b, c, and d*/
+console.log(hash.get('c')); /* 'blah' */
+console.log(hash.getKeys());
+console.log(hash.getValues());
+</code>
+
+//Hash.combine// will do the same thing but you can pass in more than one item. Note that //combine// excludes duplicates, unlike //extend// which overwrites.
+
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+hash.combine({c:'blah', d:'something', e: 'cakes', f: 'cookies'});
+/*hash now has a, b, c, d, e, and f*/
+console.log(hash.get('c')); /* 'howdy' */
+console.log(hash.getKeys());
+console.log(hash.getValues());
+</code>
+
+
+===== Hash.empty =====
+**This has changed in MooTools 1.1** - now //Hash.empty// clears the contents of the //Hash// and returns itself. It used to return //true// (if the //Hash// was empty) or //false//.
+
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+hash.empty();
+console.log(hash.getKeys().length); //zero
+</code>
+
+===== Hash.getKeys, .getValues =====
+Returns an array of the keys and values of the hash map.
+<code javascript exec>
+var hash = new Hash({a: 'hi', b: 'world', c: 'howdy'});
+console.log(hash.getKeys()); /*	[a, b, c]	*/
+console.log(hash.getValues()); /*	['hi', 'world', 'howdy']	*/
+</code>
+
+===== $H =====
+Just a short hand for //new Hash();//
+
+===== Deprecated Methods =====
+The following methods are no longer available in MooTools 1.2:
+
+   * Hash.length (use //Hash.getKeys().length//)
+   * Hash.hasKey (use //Hash.has//)
+   * Hash.keys (use //Hash.getKeys//)
+   * Hash.values (use //Hash.getValues//)

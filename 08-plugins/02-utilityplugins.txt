@@ -1,0 +1,4 @@
+====== Utility Plugins ======
+Much like the [[05-utilities:Core Utilities]], the plugin libraries include numerous scripts that help you simplify some tasks. These aren't interface utilities or anything, they're just classes that make it easier to accomplish some tasks that you aren't likely to do often, but, when you do, you'll be glad to have these helpers.
+
+{{indexmenu>mootorial:08-plugins:02-utilityplugins}}

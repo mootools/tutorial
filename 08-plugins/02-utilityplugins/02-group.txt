@@ -1,0 +1,20 @@
+====== Group ======
+The //Group// class is for grouping Class or Element Events. The //Event// added to the //Group// will fire when all of the events of the items of the group are fired. Here are [[http://docs.mootools.net/Plugins/Group|the docs for Group.js]].
+
+<code javascript>
+	xhr1 = new Request.HTML({url: 'data.js', evalScript: true});
+	xhr2 = new Request.HTML({url: 'abstraction.js', evalScript: true});
+	xhr3 = new Request.HTML({url: 'template.js', evalScript: true});
+
+	var group = new Group(xhr1, xhr2, xhr3);
+	group.addEvent('onComplete', function(){
+		alert('All Scripts loaded');
+	});
+
+	xhr1.send();
+	xhr2.send();
+	xhr3.send();
+	//when all 3 requests complete, the alert will occur
+</code>
+
+Using //Group// you can define custom events for your applications. When the user interacts with the page in a specific order, you can fire an event to signify this occurence.

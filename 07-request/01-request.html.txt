@@ -1,0 +1,38 @@
+====== Request.HTML ======
+A common practice with Ajax is to update the content of a DOM element with the results of an Ajax request. In other words, fetch new html and replace the inner HTML of some DOM element with the new HTML.
+
+MooTools provides a //[[00-request|Request]]// extension that automates this for you. 
+Here is the [[http://docs.mootools.net/Request/Request.HTML|documentation for Request.HTML.js]].
+It takes all the same options as //Request// plus three new ones:
+
+<html>
+<dl>
+	<dt>update</dt>
+	<dd>The Element to insert the response text of the Request into upon completion of the request.</dd>
+	<dt>evalScripts</dt>
+	<dd>If set to <i>true</i>, script tags inside the response will be evaluated. Defaults to <i>true</i>.</dd>
+	<dt>evalResponse</dt>
+	<dd>If set to <i>true</i>, the entire response will be evaluated. Defaults to <i>false</i>.</dd>
+</dl>
+</html>
+
+Here's an actual working //Request// request you can execute:
+
+<html><div id="ajaxExample">This is a div that we'll insert our ajax response into.</div></html>
+
+<code javascript exec>
+new Request.HTML({
+	url: '/Ajax.Request.Example.html',
+	method: 'get',
+	update: 'ajaxExample',
+	evalScripts: true, /* this is the default */
+	onComplete: function(){console.log('ajax complete!')}
+}).send();
+</code>
+
+Note that you can keep the Request object around:
+<code javascript>
+var myRequest = new Request(...);
+</code>
+
+Also note that creating an instance of the class doesn't actually fire the request; you need to call the method //.send()// to do that.

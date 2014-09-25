@@ -1,0 +1,171 @@
+====== Fx.Transitions ======
+Fx.Transitions.js contains numerous transitions that are easier to demonstrate than they are to describe. Here is the [[http://docs.mootools.net/Fx/Fx.Transitions|documentation for Fx.Transitions.js]].
+
+Drag the redbox and see the transition when you release it:
+
+<html>
+<style>
+#box {
+	height: 300px;
+	width: 100%;
+	background: #ccc;
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+#target {
+	height: 50px;
+	width: 50px;
+	background: #ff3300;
+	position: absolute;
+}
+#demo {
+	position: relative;
+}
+</style>
+
+	
+<div id="demo">
+	<div id="fxNavigation">
+		<label for="fxTransition">Transition</label>: 
+		<select id="fxTransition">
+			<option value="linear">
+				Linear
+			</option>
+	
+			<option value="Quad">
+				Quadratic
+			</option>
+			<option value="Cubic">
+				Cubic
+			</option>
+			<option value="Quart">
+				Quartic
+			</option>
+			<option value="Quint">
+	
+				Quintic
+			</option>
+			<option value="Sine">
+				Sinusoidal
+			</option>
+			<option value="Expo">
+				Exponential
+			</option>
+			<option value="Circ">
+				Circular
+			</option>
+	
+			<option value="Bounce">
+				Bouncing
+			</option>
+			<option value="Back">
+				Back
+			</option>
+			<option value="Elastic">
+				Elastic
+			</option>
+		</select>
+		<select id="fxEase">
+			<option value="easeIn">
+				easeIn
+			</option>
+			<option value="easeOut">
+				easeOut
+			</option>
+			<option value="easeInOut">
+				easeInOut
+			</option>
+		</select><br/>
+		<label for="duration">Duration</label>: 
+		<input type="text" id="duration" value="1000" />
+	</div>
+	<div id="box">
+		<div id="target"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+window.addEvent('domready', function(){
+var target = $('target');
+var fx = new Fx.Morph(target, {duration: 1000, wait: false});
+var box = $('box');
+
+var selectTransition = $('fxTransition');
+var selectEase = $('fxEase');
+var durationInput = $('duration');
+
+//var result = $('result');
+
+
+$$(selectEase, selectTransition).addEvent('change', function(){
+	var transition = selectTransition.get('value');
+	if (transition == 'linear'){
+		fx.setOptions({
+			transition: Fx.Transitions.linear
+		});
+		transition = 'Fx.Transitions.linear';
+	} else {
+		var ease = selectEase.get('value');
+		fx.setOptions({
+			transition: Fx.Transitions[transition][ease]
+		});
+		transition = 'Fx.Transitions.' + transition + '.' + ease;
+	}
+	//result.set('html', transition);
+});
+
+selectEase.fireEvent('change');
+
+durationInput.addEvent('blur', function(){
+	fx.options.duration = durationInput.get('value').toFloat();	
+});
+
+/*box.addEvent('mousedown', function(event){
+	fx.start({
+		'top': [event.page.y - 25],
+		'left': [event.page.x - 25]
+	});
+	event.stop();
+});*/
+
+new Drag.Move(target, {
+	container: box,
+	
+	onComplete: function(){
+		fx.start(this.s);
+	},
+	
+	onStart: function(){
+		this.s = {
+			'left': 0,
+			'top': 50
+		};
+	}
+});
+});
+	</script>
+</html>
+
+
+Each transition features three modes: //easeIn//, //easeOut//, and //easeInOut//. So, for example, //Fx.Transitions.Quad.easeIn// is how you'd refer to it. The only transition that doesn't have these variables is //Linear//.
+
+Additionally, you can create a custom transition by passing in a numeric parameter:
+
+<code javascript>
+//Elastic.easeOut with user-defined value for elasticity.
+var myTransition = new Fx.Transition(Fx.Transitions.Elastic, 3);
+new Fx.Tween(element, {transition: myTransition.easeOut});
+</code>
+
+===== Fx.Transitions Shorthands =====
+You can also refer to these transitions with a shorthand that's a little easier to remember and type:
+
+<code javascript>
+//Fx.Transitions.Bounce.easeIn
+new Fx.Tween(element, {transition: 'bounce:in'});
+//Fx.Transitions.Sine.easeOut
+new Fx.Tween(element, {transition: 'sine:out'});
+//Fx.Transitions.Elastic.easeInOut
+new Fx.Tween(element, {transition: 'elastic:in:out'});
+</code>

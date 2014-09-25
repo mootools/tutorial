@@ -1,0 +1,55 @@
+====== Request (aka Ajax) ======
+
+Here is the [[http://docs.mootools.net/Request/Request|documentation for Request.js]].
+
+The //Request// class is a relatively simple wrapper for the //XMLHttpRequest// object (the heart of Ajax functionality). 
+
+It takes the following options:
+<html>
+<dl>
+	<dt>url</dt>
+	<dd>The URL to request (defaults to //null//; you can use the //send// method to specify the url later).</dd>
+	<dt>method</dt>
+	<dd>The HTTP method for the request, can be either 'post' (the default) or 'get'.</dd>
+	<dt>data</dt>
+	<dd>The default data for <a href="#Request:send">Request:send</a>, used when no data is given. Defaults to ''.</dd>
+	<dt>async</dt>
+	<dd>If set to //false//, the requests will be synchronous and freeze the browser during request. Defaults to //true//.</dd>
+	<dt>encoding</dt>
+	<dd>The encoding to be set in the request header. Defaults to "utf-8".</dd>
+	<dt>autoCancel</dt>
+	<dd>When set to //true//, automatically cancels the already running request if another one is sent. Otherwise, ignores any new calls while a request is in progress. Defaults to //false//.</dd>
+	<dt>headers</dt>
+	<dd>An object to use in order to set the request headers.</dd>
+	<dt>isSuccess </dt>
+	<dd>Provide a function to override the built-in isSuccess function.</dd>
+</dl>
+</html>
+
+Then you'll need to call the //.send// method to actually initiate a request. //.send// takes two arguments, the url, and the data to send.
+
+<code javascript>
+new Request({method: 'get'}).send('http://site.com/requestHandler.php?name=john&lastname=doe');
+</code>
+
+===== Element.send =====
+MooTools has a "built-in" instance of //Request// that you can use to send a form with an ajax post request.
+
+<code html>
+<form id="myForm" action="submit.php">
+	<input name="name" value="bob">
+	<input name="zipCode" value="90210">
+</form>
+<script>
+$('myForm').send({onComplete: handleMyResponse})
+</script>
+</code>
+
+You can use //set// to alter the options of the "built-in" version of //Request//:
+
+<code javascript>
+$('myForm').set('send', {
+	method: 'get'
+});
+$('myForm').send();
+</code>

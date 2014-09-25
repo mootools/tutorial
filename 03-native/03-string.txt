@@ -1,0 +1,130 @@
+===== Strings =====
+Here is [[http://mootools.net/docs/core/Types/String|the documentation page for String.js]].
+
+==== String.test ====
+Tests a string against a regular expression; optional second parameter for Regex options. Accepts regular expressions in both string and regexp mode.
+
+<code javascript exec>
+"I like cookies".test("cookie"); // returns true
+</code>
+<code javascript exec>
+/*ignore case*/
+"I like cookies".test("COOKIE", "i")
+</code>
+<code javascript exec>
+/*returns false*/
+"I like cookies".test("cake"); 
+</code>
+<code javascript exec>
+/*here's an example of how you would probably actually use it*/
+if("I like cookies".test("cake")) alert ('you like cake');
+else alert("you don't like cake (what's wrong with you?)");
+</code>
+
+==== String.contains ====
+Checks if the passed in string is contained in the string. Also accepts an optional second parameter, to check if the string is contained in a list of separated values. The big difference between this and //String.test// is that //String.contains// does not use regular expressions. The second argument also is notable, as it basically performs a //String.split// on the string and then searches the results:
+
+<code javascript exec>'a b c'.contains('c', ' '); //true</code>
+<code javascript exec>'a bc'.contains('bc'); //true</code>
+<code javascript exec>'a bc'.contains('b', ' '); //false</code>
+
+==== String.escapeRegExp ====
+Returns string with escaped regular expression characters:
+
+<code javascript exec>'animals.sheeps[1]'.escapeRegExp(); //'animals\.sheeps\[1\]'</code>
+
+==== String.toInt ====
+Parses the string to an integer.
+<code javascript exec>
+"10".toInt(); // value is 10
+</code>
+<code javascript exec>
+"10px".toInt(); // value is 10
+</code>
+<code javascript exec>
+"-10".toInt(); // value is -10
+</code>
+<code javascript exec>
+"px10".toInt(); // NaN
+</code>
+<code javascript exec>
+"10.1".toInt(); // returns 10
+</code>
+
+==== String.toFloat ====
+Parses a string to a float (a number with decimal values).
+<code javascript exec>
+"10".toFloat(); // value is 10
+</code>
+<code javascript exec>
+"10.01".toFloat(); // value is 10.01
+</code>
+<code javascript exec>
+"-10.01".toFloat(); // value is -10.01
+</code>
+
+==== String.camelCase ====
+Converts a hyphenated string into a mixed case string; mostly used by MooTools for setting and getting css properties.
+<code javascript exec>
+"I-like-cookies".camelCase(); //"ILikeCookies"
+</code>
+
+
+==== String.hyphenate ====
+Converts a CamelCase string to a hyphenated one; mostly used by MooTools for setting and getting css properties.
+<code javascript exec>
+"ILikeCookies".hyphenate(); //"I-like-cookies"
+</code>
+
+==== String.capitalize ====
+<code javascript exec>
+"i like cookies".capitalize(); //"I Like Cookies"
+</code>
+
+==== String.trim ====
+<code javascript exec>
+"    i like cookies     ".trim() //"i like cookies"
+</code>
+
+==== String.clean ====
+Trims (//String.trim//) a string AND removes all the double spaces in a string.
+<code javascript exec>
+" i      like     cookies      \n\n".clean() //"i like cookies"
+</code>
+
+==== String.rgbToHex ====
+<code javascript exec>
+"rgb(17,34,51)".rgbToHex(); //"#112233"
+</code>
+<code javascript exec>
+"rgba(17,34,51,0)".rgbToHex(); //"transparent"
+</code>
+<code javascript exec>
+"rgb(17,34,51)".rgbToHex(true); //[11,22,33]
+</code>
+
+==== String.hexToRgb ====
+<code javascript exec>
+"#112233".hexToRgb(); //"rgb(17,34,51)"
+</code>
+<code javascript exec>
+"#112233".hexToRgb(true); //[17,34,51]
+</code>
+
+==== String.stripScripts ====
+This method removes all the //<script>// tags from a string. If you pass in //true// as an argument, those scripts will also be evaluated.
+
+<code javascript exec>
+var myString = "<script>alert('Hello')</script>Hello, World.";
+console.log(myString.stripScripts()); /*Returns "Hello, World."*/
+console.log(myString.stripScripts(true)); /*Alerts "Hello", then returns "Hello, World."*/
+</code>
+
+==== String.substitute ====
+This method will subsitute the values in an object for the keys in a string. Each key must be wrapped with squigly brackets (you can change this if you want to use something else - see the docs).
+
+<code javascript exec>
+var myString = "{subject} is {property_1} and {property_2}.";
+var myObject = {subject: 'Jack Bauer', property_1: 'our lord', property_2: 'savior'};
+myString.substitute(myObject); //Jack Bauer is our lord and savior
+</code>

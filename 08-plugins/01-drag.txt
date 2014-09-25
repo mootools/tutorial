@@ -1,0 +1,5 @@
+====== Drag ======
+MooTools includes complex and full-featured drag functionality. It's not something that every site needs, so it's in the plugins portion of the library, but it's still very handy if you need to allow your users to drag items around on the page.
+
+
+{{indexmenu>mootorial:08-plugins:01-drag}}

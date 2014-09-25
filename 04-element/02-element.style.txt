@@ -1,0 +1,30 @@
+====== Element Styles =======
+Pretty straight forward:
+
+<html><p id="getStyleExample">This paragraph has id = getStyleExample for the examples below.</p></html>
+<code javascript exec>
+$('getStyleExample').getStyle('width'); //returns something like "528px"
+</code>
+<code javascript exec>
+$('getStyleExample').getStyle('width').toInt(); //returns 528 (an integer)
+</code>
+<code javascript exec>
+$('getStyleExample').getStyles('width', 'height'); 
+//returns something like {width:"528px", height:"89px"}
+</code>
+
+
+<html><p id="setStyleExample">setStyle lets you set a single css property:</p></html>
+<code javascript exec>
+$('setStyleExample').setStyle('border', '1px solid black');
+$('setStyleExample').setStyle('width', 300);
+</code>
+
+<html><p id="setStylesExample">setStyles has a slightly different syntax, and lets you set as many as you like:</p></html>
+<code javascript exec>
+$('setStylesExample').setStyles({
+	border:'1px solid yellow',
+	backgroundColor:'#666',
+	color:'#fff'
+});
+</code>

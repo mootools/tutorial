@@ -1,0 +1,34 @@
+====== Json =======
+If you aren't familiar with Json, then [[http://www.json.org|you best read up]]. Here's the [[http://docs.mootools.net/Utilities/Json|documentation for Json.js]].
+
+===== Json.encode =====
+the //.encode()// method of the //Json// object will convert an object to a JSON string that can be evaluated back into the object.
+
+<code javascript>
+Json.encode({apple: 'red', lemon: 'yellow'});
+//returns: '{"apple":"red","lemon":"yellow"}'
+</code>
+
+
+===== Json.decode =====
+
+<code javascript exec>
+Json.decode('{"apple":"red","lemon":"yellow"}');
+//returns the object again: {apple: 'red', lemon: 'yellow'}
+</code>
+
+A second argument for //Json.decode// exists to first check that the response is valid //Json//. This security method ensures that you don't evaluate malicious code:
+
+<code javascript exec>
+Json.decode('{"apple":"red","lemon":"yellow"}', true);
+//returns the object again: {apple: 'red', lemon: 'yellow'}
+</code>
+
+<code javascript exec>
+Json.decode("alert('you just got haxored!')", true);
+//returns null
+</code>
+
+===== Deprecated Methods =====
+   * Json.toString (see //Json.encode//)
+   * Json.evaluate (see //Json.decode//)

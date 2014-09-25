@@ -1,0 +1,2 @@
+====== Swiff ======
+The //Swiff// class helps you manage flash objects. You can instatiate a flash object and embed it in the page as well as broker instructions to the object. I'm not much of a flash user so I don't have an examples here. [[http://docs.mootools.net/Utilities/Swiff|See the documentation on Swiff for details on how to use it]].

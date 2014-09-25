@@ -1,0 +1,68 @@
+====== Fx.Slide ======
+Here is the [[http://docs.mootools.net/Plugins/Fx/Fx.Slide|documentation for Fx.Slide.js]].
+
+The slide slides an element in horizontally or vertically, the contents will fold inside. Extends //[[00-fx|Fx]]//, inherits all its properties.
+
+Think of this like an old school cash register. When you punch the keys, the value slides into view. Currently the only two directions are sliding in from the top (like a window shade) and in from the left.
+
+Options:
+<html>
+<dl>
+	<dt>mode</dt>
+	<dd>set it to vertical or horizontal. Defaults to vertical.</dd>
+	<dt>and all the <i>Fx</i> options</dt>
+</dl>
+</html>
+
+Here's a box with a box in it that we'll slide around:
+<html><div id="sliderExampleWrapper" style="width: 300px; height: 200px; border: 1px solid black;">
+	<div id="sliderButton" style="width: 100px; height: 100px; background-color: #baeeb5; border: 1px solid black"></div>
+</div>
+</html>
+
+<html><script>
+window.addEvent('domready', function(){
+mySlider = new Fx.Slide('sliderButton', {duration: 500});
+});
+</script></html>
+First, we have to create the slider object: (note that I've already executed this code for you).
+<code javascript>
+var mySlider = new Fx.Slide('sliderButton', {duration: 500});
+</code>
+Then we can play with it:
+<code javascript exec>
+mySlider.toggle() //toggle the slider up and down.
+</code>
+<code javascript exec>
+mySlider.slideIn()
+</code>
+<code javascript exec>
+mySlider.slideOut()
+</code>
+<code javascript exec>
+mySlider.hide() //hides the element without a transition
+</code>
+<code javascript exec>
+mySlider.show() //shows the element without a transition
+</code>
+
+
+
+===== A Better Example =====
+
+Here's how you might actually use it in the real world:
+<html><div><b><u id="slider2" style="cursor: pointer">Show some stuff</u></b></div><div id="slider2Content">
+		I'm a bunch of text that toggles up and down when you click the text above me.
+		I'm a bunch of text that toggles up and down when you click the text above me.
+		I'm a bunch of text that toggles up and down when you click the text above me.
+		I'm a bunch of text that toggles up and down when you click the text above me.
+	</div>
+<br/>
+</html>
+
+Note that there's an element shortcut for the "built-in" version of //Fx.Slide//:
+<code javascript exec>
+$('slider2').addEvent('click', function(){
+  $('slider2Content').slide('toggle');
+});
+</code>

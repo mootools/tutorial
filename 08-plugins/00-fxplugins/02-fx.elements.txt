@@ -1,0 +1,31 @@
+====== Fx.Elements ======
+Here is the [[http://docs.mootools.net/Plugins/Fx/Fx.Elements|documentation for Fx.Elements.js]].
+
+//Fx.Elements// allows you to apply any number of styles transitions to a selection of elements. Includes colors (must be in hex format). This Class is often implemented into others. For example, the //Accordion// effect applies numerous transition changes to numerous elements at once. Here's a simple example:
+
+Here are three divs for this example:
+<html><div class="exampleBar"></div>
+<div class="exampleBar"></div>
+<div class="exampleBar"></div></html>
+
+<code javascript exec>
+var myElementsEffects = new Fx.Elements($$('div.exampleBar'));
+myElementsEffects.start({
+	'0': { /*	let's change the first element's opacity and width	*/
+		'opacity': [0,1],
+		'width': [100,200]
+	},
+	'1': { /*	and the second one's opacity	*/
+		'opacity': [0.2, 0.5]
+	},
+	'2': { /*	and the third's height	*/
+	'height': 40 /*	from whatever it's at now to 40	*/
+	}
+});
+</code>
+
+
+
+
+
+

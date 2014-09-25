@@ -1,0 +1,88 @@
+====== When to Use Classes ======
+
+Some of this is based on [[http://www.clientcide.com/best-practices/thoughts-on-coding-and-new-classes-as-a-result/|a blog post I made on clientcide]].
+
+<html><hr/></html>
+
+Previously I had divided my code into two types: what I called "implementation" code and code designed to be reused.
+
+The implementation code (to me) was the code you had to write for a specific page and, for that reason, wasn't reusable. It references specific dom elements and is tailored to the user experience. Reusable code was the stuff that was generic. Slideshows, date pickers, etc.
+
+After using MooTools for a long time, I began to think of //all// of my code as reusable. In theory, the only non-reusable stuff is the stuff that explicitly references the DOM. As a result, I started writing classes for everything, no matter how trivial. My pages would have a minimal amount of code and the only thing they would have is code that is used to instantiate these classes.
+
+For example, if, previously, I had code that toggled an element from being hidden to visible (using Fx.Reveal) did something like this:
+
+<code javascript>
+$('clicker').addEvent('click', function(){
+	$('section').retrieve('reveal').toggle();
+});
+</code>
+
+I would instead write a class that would look like this:
+
+<code javascript>
+var Collapsable = new Class({
+	Extends: Fx.Reveal,
+	initialize: function(clicker, section, options) {
+		this.clicker = $(clicker).addEvent('click', this.toggle.bind(this));
+		this.parent($(section), options);
+	}
+});
+</code>
+
+It's not much more code, but now I can recreate the same thing on my page with just:
+
+<code javascript>
+new Collapsable($('clicker'), $('section'));
+</code>
+
+===== Dividends =====
+
+At first, as I worked, I'd find myself repeatedly turning away from my specific task and writing some generic class. Any time I wanted to write more than //new Something...// I'd have to go write a class. It felt like slow progress.
+
+But over time, a few things began to become clear.
+
+    * New pages took less and less time as I built up a little group of widget classes
+    * Stuff I never thought I'd actually reuse turned out to get used again
+    * I found myself extending the simple classes that I thought would have limited use and developing little families of functionality
+    * My pages themselves had less and less code on them
+
+===== Lots of Methods =====
+
+Sometimes it doesn't make sense to make a class out of something. I'm finding myself making classes whenever I write more than a line or two of code. A lot of my classes are still highly specific to an application and I don't try to make them more generic. Writing classes helps me organize my thoughts and my code and I find them much easier to revisit and work on.
+
+A big part of writing classes is breaking up functionality into little methods that do one thing and do that one thing simply. When I would write a function to initialize a page or a portion of one, I'd often have a function that just went on forever. When I write classes, I don't write this way. I don't write:
+
+<code javascript>
+var Foo = new Class({
+	initialize: function(){
+		//one giant, 300 line function
+	}
+});
+</code>
+
+Instead I have classes that have lots of little components:
+
+<code javascript>
+var Foo = new Class({
+	initialize: function(){
+		this.setup();
+		this.attachEvents();
+		this.foo();
+		this.bar();
+		//etc.
+	}
+	setup: function(){..},
+	attachEvents: function(){...},
+	foo: function(){...},
+	bar: function(){...},
+	etc...
+});
+</code>
+
+As a result it's not only more likely that I'll be able to reuse portions of the work, but it's also much, much easier to read and understand.
+
+===== My Rule of Thumb =====
+If I'm writing anything for a page that I can imagine writing again, it's increasingly likely I'll write a class for it. I end up with a lot of little throw-away classes that aren't really worth sharing. Publishing them ([[http://www.clientcide.com/js|along with all our other code]]) isn't worth the trouble - writing the unit tests, documentation, tutorials, and other assets take a lot of time and if the class is only 3 or 5 lines long, it's really not worth offering. But in my own work, I try to make as much of my code classes.
+
+If I have a rule of thumb, it's this: Any code that could possibly work on another page with different variables should be a class. There are always exceptions to this, of course. But working this way has proved to be very productive for me, especially as I write more and more of them. When I move from one project to a next, I can take more and more code with me. Even if they are little 3-line widgets, they mean less code to write and test in the new environment. When it's time to upgrade, I have less to regress.

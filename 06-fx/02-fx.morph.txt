@@ -1,0 +1,112 @@
+====== Fx.Morph ======
+Here is the [[http://docs.mootools.net/Fx/Fx.Morph|documentation for Fx.Morph.js]]
+
+//Fx.Morph// is very similar to [[01-fx.tween|Fx.Tween]] (if you haven't read about Fx.Tween yet, you should start there), except you can alter more than one property at once. You should use this over having two //Fx.Tween// properties because each property will be altered in tandem with //Fx.Morph//. It's also less resource intensive.
+
+<code javascript exec>
+var exampleFx = new Fx.Morph('fxTarget');
+exampleFx.start({
+	'width':[0,100],
+	'height':[0,100]
+});
+</code>
+
+<code javascript exec>
+var exampleFx = new Fx.Morph('fxTarget', {
+	duration: 1000
+});
+exampleFx.start({
+	'opacity':[0,1],
+	'padding':[0,10]
+});
+</code>
+
+
+
+===== Element.morph =====
+
+Just like //Element.tween//, //.morph// returns an //Fx.Morph//. So the examples [[01-fx.tween|on the Fx.Tween page]] could look like this:
+
+<code javascript exec>
+$('fxTarget').morph({
+	'width':[0,100],
+	'height':[0,100]
+});
+</code>
+
+<code javascript exec>
+$('fxTarget').morph({
+	'opacity':[0,1],
+	'padding':[0,10]
+});
+</code>
+
+As with //.tween// (see the [[01-fx.tween#the-built-in-fx.tween-object|Fx.Tween section for more elaboration]]), you can configure the effect with numerous options, regardless of which syntax you use, with the //set// method:
+
+<code javascript exec>
+$('fxTarget').set('morph', {
+	duration: 1000,
+	transition: Fx.Transitions.Bounce.easeOut,
+	link: 'chain'
+});
+$('fxTarget').morph({
+	'width':0,
+	'height':0
+}).morph({
+	'width':100,
+	'height':100
+});
+</code>
+
+===== Using Fx.Morph with CSS Classes =====
+A new trick in MooTools 1.2 is the ability to transition to and from the CSS properties defined in a CSS class.
+
+For instance, let's say we have these two classes:
+
+<html>
+<style>
+.one {
+	background-color: #fff;
+	color: #000;
+	border: 3px solid #000;
+	padding: 10px;
+}
+.two {
+	background-color: #000;
+	color: #fff;
+	border: 1px solid #999;
+	padding: 5px;
+}
+</style>
+</html>
+<code css>
+.one {
+	background-color: #fff;
+	color: #000;
+	border: 3px solid #000;
+	padding: 10px;
+	width: 300px;
+}
+.two {
+	background-color: #000;
+	color: #fff;
+	border: 1px solid #999;
+	padding: 5px;
+}
+</code>
+<html>
+<p id="morphExample" class="one">
+This paragraph starts off with the //.one// CSS class applied to it. Using the morph instructions below we'll transition between the two.
+</p>
+</html>
+
+<code javascript exec>
+$('morphExample').set('morph', {
+	link: 'chain'
+});
+$('morphExample').morph('.two').morph('.one');
+</code>
+
+This provides a very nice method to separate your design (CSS) from your interaction code (JavaScript). Doing this is a good idea for the same reason that moving your CSS (design) out of your HTML (data) is a good idea and it makes maintaining the look of your user experience easier.
+
+**NOTE**: Using //Fx.Morph// with CSS classes only works with numerical values found in the class. If, for example, one class has //display: block// and the other //display: none//, these values will not be applied. Also note that the class itself is not applied to the element - if you execute //$('morphExample').morph('.two')// the element still has the class //.one// and does NOT have //.two//, even though its styles have been altered.

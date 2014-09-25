@@ -1,0 +1,60 @@
+====== Tips ======
+Here is the [[http://docs.mootools.net/Plugins/Tips|documentation for Tips.js]].
+
+(Tool)//Tips// are just little help popups to help users understand (possibly hidden) functionality. Not everyone knows you can drag something or double click it. //Tips// use the //title// property of an element to derive their caption and the //rel// property to retrieve their text. 
+
+<code html>
+<a href="somePage.html" title="Some Page" rel="This is a link to 'Some Page'" id="somePageLink">Click me!</a>
+</code>
+
+You can also use [[00-element#element-storage|Element storage]] to set the text and caption:
+
+<code javascript>
+$('somePageLink').store('tip:title', 'Some Page');
+ $('somePageLink').store('tip:text', "This is a link to 'Some Page'");
+</code>
+
+The css for the tooltip itself is something that you can make whatever you like. The css has to be defined though, otherwise the tooltip will look really bad. Here's the css I'm using, borrowed straight from MooTools.net.
+
+<code css>
+.tip {
+	color: #fff;
+	width: 172px;
+	z-index: 13000;
+}
+
+.tip-title {
+	font-weight: bold;
+	font-size: 11px;
+	margin: 0;
+	padding: 8px 8px 4px;
+	background: url(/wiki/lib/tpl/clientside/images/bubble.png) top left;
+}
+
+.tip-text {
+	font-size: 11px;
+	padding: 4px 8px 8px;
+	background: url(/wiki/lib/tpl/clientside/images/bubble.png) bottom right;
+}
+</code>
+
+And here's the html:
+<code html>
+<img width="302" height="92" border="0" alt="//clientside" 
+src="http://www.clientcide.com/art/logo.black.png" title="//Clientside" 
+rel="all things browser side (javascript, css, etc.)." 
+class="toolTipElement"/>
+</code>
+
+<code javascript exec>
+var myTips = new Tips($$('.toolTipElement'), {
+	timeOut: 700,
+	maxTitleChars: 50, /*I like my captions a little long*/
+	maxOpacity: .9 /*let's leave a little transparancy in there */
+});
+</code>
+
+<html><img width="302" height="92" border="0" alt="//clientside" 
+src="http://www.clientcide.com/art/logo.black.png" title="//Clientside" 
+rel="all things browser side (javascript, css, etc.)." 
+class="toolTipElement"/></html>

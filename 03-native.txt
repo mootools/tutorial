@@ -1,0 +1,4 @@
+====== Native Extensions ======
+The Native group of scripts are basic extensions to the default objects in javascript (currently, MooTools has Native code for Array, Element, Event, Function, Hash and String). These files alter the way these elements and every instance of them work. Because it's possible to create arrays or array like objects (like the //arguments// object inside a function) before this code is executed (or otherwise outside this scope), they typically have a means by which to apply these functions to existing objects. Here's a run down of the functions available for these objects.
+
+{{indexmenu>mootorial:03-native}}

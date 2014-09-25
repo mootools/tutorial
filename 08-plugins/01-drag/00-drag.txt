@@ -1,0 +1,87 @@
+====== Drag Base Class ======
+Here is the [[http://mootools.net/docs/more/Drag/Drag.Move|documentation for Drag.js]].
+
+MooTools lets you make objects draggable and it's super easy. Doing it well takes a bit more work, but the code that just handles the dragging itself is pretty much all done for you.
+
+//Drag// is a little lower level and lets you alter any two properties when the user clicks and moves the mouse (drags). It's used for moving and also, for instance, for resizing (by altering width and height).
+
+These are the options that //Drag// takes:
+
+**Arguments:**
+<html>
+<dl>
+	<dt>element</dt><dd>the element to apply the transformations to.</dd>
+	<dt>options</dt><dd>optional. The options object.</dd>
+</dl>
+</html>
+**Options:**
+<html>
+<dl>
+	<dt>grid</dt>
+	<dd>(integer: defaults to false) Distance in pixels for snap-to-grid dragging.</dd>
+	<dt>handle</dt>
+	<dd>(element: defaults to the element passed in) The Element to act as the handle for the draggable element.</dd>
+	<dt>invert</dt>
+	<dd>(boolean: defaults to false) Whether or not to invert the values reported on start and drag.</dd>
+	<dt>limit</dt>
+	<dd>(object: defaults to false) An object with x and y properties used to limit the movement of the Element.</dd>
+	<dt>modifiers</dt>
+	<dd>(object: defaults to {'x': 'left', 'y': 'top'}) An object with x and y properties used to indicate the CSS modifiers (i.e. 'left').</dd>
+	<dt>snap</dt>
+	<dd>(integer: defaults to 6) The distance to drag before the Element starts to respond to the drag.</dd>
+	<dt>style</dt>
+	<dd>(boolean: defaults to true) Whether or not to set the modifier as a style property of the element.</dd>
+	<dt>unit</dt>
+	<dd>(string: defaults to 'px') A string indicating the CSS unit to append to all integer values.</dd>
+</dl>
+</html>
+**Events:**
+<html>
+<dl>
+	<dt>beforeStart</dt>
+	<dd>Executed before the Drag instance attaches the events. Receives the dragged element as an argument.</dd>
+	<dt>start</dt>
+	<dd>Executed when the user starts to drag (on mousedown). Receives the dragged element as an argument.</dd>
+	<dt>snap</dt>
+	<dd>Executed when the user has dragged past the snap option. Receives the dragged element as an argument.</dd>
+	<dt>drag</dt>
+	<dd>Executed on every step of the drag. Receives the dragged element as an argument.</dd>
+	<dt>complete</dt>
+	<dd>Executed when the user completes the drag. Receives the dragged element as an argument.</dd>
+</dl>
+</html>
+
+==== Element.makeResizeable ====
+Pretty self explanatory I think. Here you go:
+
+<code javascript exec>
+$('resizeExampleContainer').makeResizable({
+	handle: 'resizeExampleHandle'
+});
+</code>
+<html>
+<div id="resizeExampleContainer">
+<div id="resizeExample" style="height: 100%; border: 1px solid black; display: block; width: 100%;">
+<br> <br> <br>
+</div>
+<img src="http://www.clientcide.com/wp-content/themes/clientside/art/resize.gif" id="resizeExampleHandle" style="float:right; border: none;">
+</div>
+</html>
+
+Here's an example where we limit sizing to one dimension (height):
+<code javascript exec>
+$('resizeExampleContainerLimited').makeResizable({
+	handle: 'resizeExampleHandleLimited',
+	modifiers:{x: false, y:'height'} /*limit the sizing to vertical*/
+});
+</code>
+<html>
+<div id="resizeExampleContainerLimited">
+<div id="resizeExampleLimited" style="height: 100%; border: 1px solid black; display: block; width: 100%;">
+<br> <br> <br>
+</div>
+<img src="http://www.clientcide.com/wp-content/themes/clientside/art/resize.gif" id="resizeExampleHandleLimited" style="float:right; border: none;">
+</div>
+<br> <br> <br>
+</html>
+

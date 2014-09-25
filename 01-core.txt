@@ -1,0 +1,387 @@
+====== Core ======
+Core.js represents the first file in the library on which all others depend. [[http://docs.mootools.net/Core/Core|Here are the docs for Core.js]]
+
+===== MooTools =====
+MooTools has a namespace which contains a version number. This namespace isn't used for much else, but it's useful if you need to query the page to see what version of MooTools is in the environment:
+
+<code javascript>
+var MooTools = {
+	'version': 1.2
+};
+</code>
+
+===== $chk =====
+//$chk// returns //true// if the passed in value/object exists (is **not** //undefined// or //null//) or is 0, otherwise returns //false//. Note that //$chk// will return //false// for empty strings (but not for empty arrays or objects). 
+
+<code javascript exec>$chk([]); //true</code>
+<code javascript exec>$chk(0); //true</code>
+<code javascript exec>$chk(''); //false</code>
+<code javascript exec>$chk(null); //false</code>
+<code javascript exec>$chk(false); //false</code>
+
+It's similar to //$defined// but, unlike defined which ONLY checks for //undefined// and //null//, //$chk// actually evaluates the property unless it is zero (in which case it returns true).
+
+<code javascript exec>$defined(''); //true</code>
+<code javascript exec>$defined(false); //true</code>
+
+===== $clear =====
+//$clear// clears the passed in timeout:
+<code javascript exec>
+var oneSec = setTimeout(function(){alert('one second later...')}, 1000);
+$clear(oneSec); //nevermind
+</code>
+
+===== $defined =====
+//$defined// quite simply returns true if the argument passed to it is not //undefined// or //null//:
+
+<code javascript exec>
+var x = null;
+console.log($defined(x)); /*	false	*/
+function example(value){
+	console.log($defined(value));
+}
+example(); /*	logs false; no argument passed	*/
+</code>
+
+=====$each=====
+If you want to iterate through an iterable object (such as the arguments passed to a function) without applying all the array properties to it (which is slightly slower), you can use //$each()// to do this.
+
+<code javascript exec>$each(["one", "two", "three"],function(number){
+  alert(number);
+}); //alert one, two, three
+</code>
+
+//$each// also lets you iterate over objects:
+
+<code javascript exec>
+$each({apple:'red',lemon:'yellow',lime:'green'}, function(value, key){
+	console.log(key+"s are "+value);
+});
+//logs apples are red, lemons are yellow, limes are green
+</code>
+
+Like //[[00-array#array.each|Array.each]]//, it can take a third argument for binding.
+
+
+===== $empty =====
+Sometimes you need a placeholder for functions that will be defined later. This is useful for callback functions that you need to define and execute later. By using an empty function that does nothing, you don't have to worry if the member has been defined before it's executed. This will make more sense when you start using the //[[00-class-extras#theeventsclass|Events]]// and //[[00-class-extras#theoptionsclass|Options]]// classes. Anyway, //$empty// is just that - an empty function.
+
+
+===== $lambda =====
+This is a somewhat abstract shortcut. //$lambda// creates a function that returns the argument you pass it. So, if you pass it a string, you'll get back a function that returns that string. If you pass it a function, it just returns that function to you.
+
+//$lambda// is useful when you're writing classes and interfaces that you intend others to use and you want to accept a function or a value. It's also useful when you have a value and you just need a function to return it that you can then pass to something else. This is perhaps best explained with an example:
+
+<code javascript>
+$('myLink').addEvent('click', function(){
+	return false; //stop the browser from following the link
+});
+//versus:
+$('myLink').addEvent('click', $lambda(false)); //SAME THING!
+</code>
+
+Again, it's just a shortcut for creating a function that returns the specified value.
+
+
+===== $merge and $extend =====
+One of the basic concepts in MooTools is reusability. The ability to inherit properties from one object to another or merge the properties of two objects is at the heart of what MooTools does. //$merge// and //$extend// both allow you to combine the properties of two javascript objects offering up numerous opportunities for clean and reusable code.
+
+These two code blocks **do the same thing** EXCEPT that //$merge// does not alter any of the items passed to it (returning the result instead) while $extend changes the first argument to now include the values of the second.
+
+<code javascript exec>
+var fruits = {
+	apple: 'red',
+	lemon: 'yellow'
+};
+var otherFruits = {
+	apple: 'green',
+	grape: 'purple'	
+};
+$extend(fruits, otherFruits); 
+/*	fruits has been altered by $extend	*/
+console.log(fruits);
+/*	logs: {apple:'green', lemon: 'yellow', grape: 'purple'}	*/
+</code>
+
+In the example above we see the two objects merged, and because //otherFruits// was passed in later than //fruits// its values trumped those found in the //fruits// object (so apple came out "green" instead of "red"). Here is //$merge// doing the same thing, but note that //fruits// is unaltered and to receive the result of the operation we must store it in a variable using //equals =//.
+
+<code javascript exec>
+var fruits = {
+	apple: 'red',
+	lemon: 'yellow'
+};
+var otherFruits = {
+	apple: 'green',
+	grape: 'purple'	
+};
+var newFruits = $merge(fruits, otherFruits); 
+console.log('newFruits: ', newFruits);
+/*	fruits has NOT been altered by $merge	*/
+console.log('unaltered fruits: ', fruits);
+/*	logs: {apple:'red', lemon: 'yellow'}	*/
+
+fruits = $merge(fruits, otherFruits); 
+/*	fruits HAS been altered by setting the result using =	*/
+console.log('fruits altered: ', fruits);
+/*	logs: {apple:'green', lemon: 'yellow', grape: 'purple'}	*/
+</code>
+
+**Note:** that //$extend//, like //$merge//, returns the result of the operation, but remember it also alters the first argument.
+<code javascript>
+//continued from above
+var newFruits = $extend(fruits, otherFruits);
+//newFruits == fruits; they are the same object
+</code>
+
+
+
+
+
+
+==== Comparing $merge and $extend ====
+
+Unlike //$extend//, //$merge// can take any number of arguments with each argument's existing properties trumping the next.
+
+<code javascript exec>
+var fruits = {
+	apple: 'red',
+	lemon: 'yellow'
+};
+var otherFruits = {
+	apple: 'green',
+	grape: 'purple'	
+};
+var yetMoreFruits = {
+	apple: 'yellow',
+	orange: 'orange'
+};
+var newFruits = $merge(fruits, otherFruits, yetMoreFruits);
+console.dir(newFruits);
+/*	logs: {apple:'yellow', lemon: 'yellow', grape: 'purple', orange: 'orange'}	*/
+</code>
+
+The value of //apple// in //yetMoreFruits// is preserved because it was the last passed in.
+
+=== $merge recurses ===
+
+It's important to note that **//$merge// is recursive**. Unlike //$extend//, which just takes the members of the second argument and adds them to the first argument, //$merge// will do the same except when one of the members is another object. In this case it will recurse into that object and copy its values into the result.
+
+This is important, because in javascript if you ever type //var object = someOtherObject// you are not creating a copy of that object but merely another pointer to it:
+
+<code javascript exec>
+var x = {one: 1};
+var y = x;
+console.log(x == y); /*	true	*/
+
+x.two = 2; /*	changing x also changes y	*/
+console.log(y.two); /*	2	*/
+</code>
+
+But two objects with the same properties are NOT == to each other:
+<code javascript exec>
+var x = {one: 1};
+var y = {one: 1};
+console.log(x == y); /*	false	*/
+
+x.two = 2; /*	changing x does not change y	*/
+console.log(y.two); /*	undefined	*/
+</code>
+
+If you use //$extend// to merge two objects together and the second object contains members //that are also objects//, you will create a link between the two:
+
+<code javascript exec>
+var fruits = {
+	apple: 'red',
+	lemon: 'yellow'
+};
+var detailedFruits = {
+	apple: {
+		goldenDelicious: 'yellow',
+		pinkLady: 'red',
+		sour:'green'
+	}
+};
+$extend(fruits, detailedFruits);
+console.dir(fruits);
+/*	logs {apple:{goldenDelicious:'yellow', pinkLady:'red', sour: 'green'}, lemon: 'yellow'}	*/
+
+/*	changing apple in one changes it in both	*/
+detailedFruits.apple.pinkLady = 'pink';
+console.dir(fruits);
+/*	logs {apple:{goldenDelicious:'yellow', pinkLady:'pink', sour: 'green'}, lemon: 'yellow'}	*/
+</code>
+
+The link between //fruits// and //detailedFruits// shouldn't exist, but it does because //apple// is an object.
+
+//$merge//, though, will recurse into //detailedFruits.apple// copying the values of each of its members so that this link does not exist.
+
+<code javascript exec>
+var fruits = {
+	apple: 'red',
+	lemon: 'yellow'
+};
+var detailedFruits = {
+	apple: {
+		goldenDelicious: 'yellow',
+		pinkLady: 'red',
+		sour:'green'
+	}
+};
+fruits = $merge(fruits, detailedFruits);
+console.dir(fruits);
+/*	logs {apple:{goldenDelicious:'yellow', pinkLady:'red', sour: 'green'}, lemon: 'yellow'}	*/
+
+/*	now changes to one object do not affect the other	*/
+detailedFruits.apple.pinkLady = 'pink';
+console.dir(fruits);
+/*	logs {apple:{goldenDelicious:'yellow', pinkLady:'red', sour: 'green'}, lemon: 'yellow'}	*/
+</code>
+
+Most of the time you won't use //$merge//. It's used within MooTools for certain types of inheritance and whenever you need to combine objects that contain objects, but it's far less efficient than //$extend//. If you understand the purpose of each and use them appropriately you shouldn't have any trouble.
+
+===== $pick =====
+//$pick// returns the first object if defined (it uses //$defined//), otherwise returns the second.
+
+Pick is just a shortcut for an if/else statement. It takes any number of variables and returns the first one that is defined or not //null//. This means you can call //$pick(false, defaultVal)// and //$pick// will return //false//, because it's defined.
+
+<code javascript exec>function test(variable){
+	alert($pick(variable, 'no variable defined!'));
+}
+
+test(); /*	alerts 'no variable defined!'	*/
+test('hi'); /*	alerts 'hi'	*/
+test(false); /*	alerts 'false'	*/
+test(''); /*	alerts ''	*/</code>
+
+If you were to write this function above out without //$pick//, it'd look like this:
+<code javascript>function test(variable){
+	if(typeof variable == "undefined" || variable == null) alert('no variable defined');
+	else alert(variable);
+}</code>
+
+What's important to note here is that zero, an empty string, and false when passed to //$pick// will return that value. If you were to evaluate the variable itself: //if(variable) alert(variable)// - your conditional would evaluate those values (zero, "", the boolean //false//) and alert that no variable was defined.
+
+It saves you the time of writing out a long //if// statement. But it gets even more useful when you need to evaluate numerous things:
+<code javascript>function test(variable) {
+	variable = $pick(variable, someOtherVariable, defaultValue);
+}
+//typing this out with if/else statements would look like:
+function test(variable){
+	if(typeof variable == "undefined" || variable == null){
+		if(typeof someOtherValue != "undefined" && someOtherValue != null) 
+			variable = someOtherValue;
+		else
+			variable = defaultValue;
+	}
+	return variable;
+}</code>
+
+===== $random =====
+Returns a random number between the minimum and maximum you pass in:
+
+<code javascript exec>$random(0,9); //returns a random number between 0 and 9</code>
+
+===== $splat =====
+//$splat// converts the argument you pass it into an array if it isn't already an array. This is useful when you want to have a method that accept an argument that is either a single object or an array of them.
+
+<code javascript exec>
+function myFavoriteThings(things){
+	alert("I like " + $splat(things).join(" and "));
+};
+myFavoriteThings("cookies"); /*I like cookies*/
+myFavoriteThings(["cookies", "cake", "ice cream"]); 
+/*I like cookies and cake and ice cream*/
+</code>
+
+===== $time =====
+A shortcut for //new Date.getTime();//.
+
+<code javascript exec>$time(); //the current time value</code>
+
+===== $try =====
+//$try// will attempt to execute a number of methods and returns the value of the first function that doesn't throw an error.
+
+<code javascript exec>
+$try(function(){
+	console.log(foo.bar); /*this doesn't exist, throws an error*/
+}, function(){
+	var msg = null;
+	console.log(msg.length); /*null has no properties, throws an error*/
+}, function(){
+	console.log("I don't contain any errors");
+});
+</code> 
+
+
+===== $type =====
+Javascript is a loosely typed language and this often causes a lot of grief for those that work with it. MooTools' //$type// function helps by letting you figure out what something is. //$type// returns the type of an object ('function' or 'string', etc.) or false if the object is not defined:
+
+	*'element' if obj is a DOM element node
+	*'textnode' if obj is a DOM text node
+	*'whitespace' if obj is a DOM whitespace node
+	*'arguments' if obj is an arguments object
+	*'object' if obj is an object
+	*'array' if obj is an array
+	*'string' if obj is a string
+	*'number' if obj is a number
+  *'date'  if obj is a date
+	*'boolean' if obj is a boolean
+	*'function' if obj is a function
+	*'regexp' if obj is a regular expression
+	*'class' if obj is a Class. (created with new Class, or the extend of another class)
+	*'collection' if obj is a native htmlelements collection, such as childNodes, getElementsByTagName .. etc.
+  *'window' if obj is the window object
+  *'document' if obj is the document object
+	*false (boolean) if the object is not defined or none of the above
+	
+<html><span id="typeTest"></span></html>
+
+This example uses the //$()// function; see [[03-native#section|Native>Element>$()]].
+
+<code javascript exec>$type($('typeTest'))//element if $('typeTest') exists, 
+//otherwise boolean, because $() returns false if the element isn't found.
+//this example returns true</code>
+
+<code javascript exec>$type($('elementNotPresent'));
+//returns false, because $() returns null here</code>
+
+<html>
+<div id="typeElement" style="display: none">
+this is a text node
+ <span> </span>
+</div>
+</html>
+
+<code html>
+<div id="typeElement" style="display: none">
+this is a text node
+<span> </span>
+</div>
+</code>
+
+<code javascript exec>
+console.log($type($('typeElement').childNodes[0]));// "textnode"
+console.log($type($('typeElement').getElement('span').childNodes[0]));// "whitespace"
+</code>
+
+<code javascript exec>function test(){
+	console.log($type(arguments));
+}
+test('one','two'); /*	logs "arguments"	*/
+test(); /*	also logs "arguments"	*/
+</code>
+
+<code javascript exec>$type({});//"object"</code>
+<code javascript exec>$type('hi'); //"string"</code>
+<code javascript exec>$type(''); //"string"</code>
+<code javascript exec>$type(0); // "number"</code>
+<code javascript exec>$type(true); // "boolean"</code>
+<code javascript exec>$type(false); // "boolean"</code>
+<code javascript exec>$type(function(){});//"function"</code>
+<code javascript exec>$type([]);//"array"</code>
+<code javascript exec>$type(new Class());// "class"</code>
+<code javascript exec>$type(document.getElementsByTagName('p'));// "collection"</code>
+<code javascript exec>$type(/([.*])/); //"regexp"</code>
+<code javascript exec>var x = null;
+$type(x);// false</code>
+<code javascript exec>$type(); // false</code>

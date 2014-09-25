@@ -1,0 +1,77 @@
+====== Accordion ======
+Here is the [[http://docs.mootools.net/Plugins/Accordion|documentation for Accordion.js]].
+
+Accordions are probably the widget most associated with MooTools (and its earlier incarnation as Moo.fx). These widgets take an ordered list and condenses them showing the details of one item at a time. Here's an example of an accordion:
+
+<html>
+<dl class="Accordion">
+  <dl>
+    <dt class="stretchtoggle"><b>first section</b></dt>
+    <dd class="stretcher">I'm the content for the first section.</dd>
+    <dt class="stretchtoggle"><b>second section</b></dt>
+    <dd class="stretcher">I'm the content for the second section.</dd>
+    <dt class="stretchtoggle"><b>third section</b></dt>
+    <dd class="stretcher">I'm the content for the third section.</dd>
+  </dl>
+</dl>
+</html>
+
+Here's what you do to make one work. The html I'm using:
+
+<code html>
+<dl class="AccordionMulti" id="accordionExample">
+  <dl>
+    <dt class="stretchtoggle"><b>first section</b></dt>
+    <dd class="stretcher">I'm the content for the first section.</dd>
+    <dt class="stretchtoggle"><b>second section</b></dt>
+    <dd class="stretcher">I'm the content for the second section.</dd>
+    <dt class="stretchtoggle"><b>third section</b></dt>
+    <dd class="stretcher">I'm the content for the third section.</dd>
+  </dl>
+</dl>
+</code>
+
+Here's that HTML actually rendered:
+
+<html>
+<dl class="AccordionMulti" id="accordionExample">
+  <dl>
+    <dt class="stretchtoggle"><b>first section</b></dt>
+    <dd class="stretcher">I'm the content for the first section.</dd>
+    <dt class="stretchtoggle"><b>second section</b></dt>
+    <dd class="stretcher">I'm the content for the second section.</dd>
+    <dt class="stretchtoggle"><b>third section</b></dt>
+    <dd class="stretcher">I'm the content for the third section.</dd>
+  </dl>
+</dl>
+</html>
+
+Now execute this code and you'll see it change to be interactive.
+
+<code javascript exec>
+new Accordion($$('dl#accordionExample dt'), $$('dl#accordionExample dd'));
+</code>
+
+**//Accordion// takes as arguments:**
+<html>
+<dl>
+	<dt>elements</dt><dd>required, a collection of elements the transitions will be applied to.</dd>
+	<dt>togglers</dt><dd>required, a collection of elements, the elements handlers.</dd>
+	<dt>options</dt><dd>optional, see options below, and //Fx.Base// options.</dd>
+</dl>
+</html>
+**Options:**
+<html>
+<dl>
+	<dt>show</dt><dd>integer, the Index of the element to show at start.</dd>
+	<dt>display</dt><dd>integer, the Index of the element to show at start (with a transition).</dd>
+	<dt>fixedHeight</dt><dd>integer, if you want your accordion to have a fixed height. defaults to false.</dd>
+	<dt>fixedWidth</dt><dd>integer, if you want your accordion to have a fixed width. defaults to false.</dd>
+	<dt><dt>onActive</dt><dd>function to execute when an element starts to show</dd>
+	<dt>onBackground</dt><dd>function to execute when an element starts to hide</dd>
+	<dt>height</dt><dd>boolean, will add a height transition to the accordion if true. defaults to true.</dd>
+	<dt>opacity</dt><dd>boolean, will add an opacity transition to the accordion if true. defaults to true.</dd>
+	<dt>width</dt><dd>boolean, will add a width transition to the accordion if true. defaults to false, css mastery is required to make this work!</dd>
+	<dt>alwaysHide</dt><dd>allows you to close every item (defaults to false)</dd>
+</dl>
+</html>

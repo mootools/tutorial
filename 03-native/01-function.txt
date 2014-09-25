@@ -1,0 +1,195 @@
+====== Functions ======
+Here is the [[http://mootools.net/docs/core/Types/Function|documentation for Function.js]].
+
+
+===== Function.create =====
+//.create// automatically wraps the function into another one with the defined set of functionalities, therefore shortens your code. It's used throughout mootools itself, as the foundation for //.pass//, //.bind//, //.delay//, //.periodical//.
+
+You probably won't find find yourself using create directly that often (well, at least I don't).
+
+//.create// takes a handful of options in a single argument as an object:
+<html><dl>
+	<dt>'bind'</dt>
+	<dd>the object to bind the "this" keyword within your function</dd>
+	<dt>'event'</dt>
+	<dd>capture the event that fired this function and pass it in as an argument</dd>
+	<dt>'arguments'</dt>
+	<dd>the arguments to pass to your function</dd>
+	<dt>'delay'</dt>
+	<dd>a duration to delay before executing the function</dd>
+	<dt>'periodical'</dt>
+	<dd>the duration to wait between executions of this function repeatedly</dd>
+	<dt>'attempt'</dt>
+	<dd>catch any error in this function and return it</dd>
+</dl></html>
+
+By way of example, here's what //Function.pass// (the next item in the tutorial) looks like:
+<code javascript>
+pass: function(args, bind){
+	return this.create({'arguments': args, 'bind': bind});
+}</code>
+More on //.pass// in a second, but what this demonstrates is taking a function, setting up some definitions (arguments, bind) and returning it ready to execute later.
+
+
+===== Function.pass =====
+<code javascript exec>
+/*syntax: Function.pass(arguments, bind)
+  bind is optional; more on bind later
+  example: myFunction.pass([arg1, arg2], myElement);*/
+function say(msg){
+    alert(msg);
+};
+var insSay=say.pass('hello world');
+//Do something 
+insSay();
+</code>
+
+You might ask yourself why do this, but you'll see why in examples later. Basically, you don't always want to execute a function immediately, and without something like the //.pass// method, you have no way to pass variables to that function without executing it. //myFunction(value)// executes myFunction. //myFunction.pass(value)// sets up //myFunction// so that it can execute later.
+
+Let's say you have an effect that's going to make something fade out. When it's done, you want to have it execute a callback of some sort. Your effect has an option for you to hand it a function to execute when it's finished, but you need to pass that function some variables. If you did something like: "//onComplete: myFunction(value)//" you'll execute your function immediately, and //onComplete// will be equal to whatever is returned, which isn't what you want. Instead, you do "//onComplete: myFunction.pass(value)//" - which gets you want you want. //myFunction.pass(value)// returns an instance of that function with that parameter set. So when you execute //onComplete()// you're really executing //myFunction(value)//.
+
+
+===== Function.bind =====
+The "this" namespace inside an object (such as a function) refers to the instance of that object. It's really useful for a lot of things, not the least of which is referring to other functions in the same object or the state of some variable. The problem is that you might author functionality that needs to be able to refer to variables in the object that's calling it. Below is a simple example of this, but when you write more complex classes and functions you'll find that this ability to define what "this" is in a given context is a necessity.
+
+<html><p id="bindExample">This example should change this paragraph to have a border around it.</p></html>
+<code javascript exec>
+function myFunction(){
+    this.setStyle('border', '1px solid black');
+    /*note that 'this' here refers to myFunction, not an element
+      we'll need to bind this function to the element we want to
+      alter*/
+};
+/*bind the element I want to effect to the function
+note that a function is returned, not executed.*/
+var myBoundFunction = myFunction.bind($('bindExample'));
+/*execute that new function with the bound object*/
+myBoundFunction();
+</code>
+
+
+===== Function.bindAsEventListener =====
+You use //bindAsEventListener// when you want as the first argument the event, no matter if its ie or firefox or any other browser.
+
+<code javascript>
+function fn(event){
+  //event is the event, no need to do window.event || event
+  //the keyword this is the element, because we used element in the bindAsEventListener argument.
+};
+element.onclick = fn.bindAsEventListener(element);
+</code>
+
+with //bindWithEvent// you'll get the mootools [[03-native:00-element-extensions#element.events.js|Event]] wrapper as the first argument:
+
+<code javascript>
+function fn(event){
+  //event is the mootools event, that supports all the cool stuff like
+  event.page.y //position of the mouse in the page
+  event.key //the key pressed
+  event.shift //if shift has been pressed to trigger the event
+  //and tons of others, refer to the docs, Native/Event.js
+  //the keyword this is the element, because we used element in the bindWithEvent argument.
+};
+element.onclick = fn.bindWithEvent(element);
+</code>
+
+Basically bind //withEvent// will do this automatically for you:
+
+<code javascript>
+function fn(event){
+    event = new Event(event);
+};
+element.onclick = fn;
+</code>
+
+
+
+===== Function.delay =====
+Yes, you can set up delays with //setTimeout//, but it's sometimes convoluted and complicated. Additionally, delay allows you to bind an element to the function that's going to get delayed.
+
+<html><p id="delayExample">The example below should draw a border around this paragraph after a one second delay.</html>
+<code javascript exec>
+function myFunction(){
+    this.setStyle('border', '1px solid black');
+};
+myFunction.delay(1000, $('delayExample'));
+</code>
+
+Here's a great example of binding. If the element were an argument to the function, I couldn't call the function with an argument with out executing it. This type of syntax wouldn't work:
+
+<code javascript>
+myFunction($('delayExample')).delay(500);
+</code>
+
+...couldn't work, because you'd execute the function immediately, and //.delay// would then attempt to execute as a method on what was returned.
+
+You could do this though:
+
+<code javascript>
+myFunction.delay(500, $('delayExample'));
+//OR
+myFunction.bind($('delayExample')).delay(500);
+</code>
+
+//.delay// takes three parameters: the delay (in ms), an object to bind (can be //null//), and any arguments you wish to pass the function. If you only pass one, you can just specify the argument, if you pass more than one, use an array:
+
+<code javascript>
+myFunction.delay(500, null, [$('delayExample'), argument2, etc.]);
+</code>
+
+===== Function.periodical =====
+<html><p id='periodicalExample'>There's also //.periodical//, which repeatedly executes your function.</p></html>
+<code javascript exec>
+	function blink(element){
+		if(element.getStyle('visibility') == 'visible') element.setStyle('visibility', 'hidden');
+		else element.setStyle('visibility', 'visible');
+	}
+	var blinker = blink.periodical(200, null, $('periodicalExample')); 
+	/*curses! the blink tag is back!*/
+	$clear.delay(2200, null, blinker);//make it stop!
+</code>
+
+===== Function.attempt =====
+This is a shortcut for try/catch. //Function.attempt// will catch any errors in your function and return false to you if the function fails (otherwise it returns the results of your function).
+
+**This is a change from MooTools 1.0** where //Function.attempt()// returned the error thrown instead.
+
+<code javascript exec>
+function test(value){
+	alert(value.something); 
+	/*in this test, value won't be defined, 
+	so it'll throw an error*/
+}
+test.attempt(); /*returns false because of the error*/
+</code>
+
+The above is the equivalent of this:
+
+<code javascript>
+function test(value){
+	try {
+		alert(value.something); 
+		/*in this test, value won't be defined, 
+		so it'll throw an error*/
+	} catch(err) {
+		return false;
+	}
+}
+</code>
+
+
+
+
+
+=====Function.run=====
+JavaScript has a native method to run a function and bind something to it (//fun.apply(bind, arrayOfArguments)//). It also has a native method that does the same thing with the arguments specified after the bind object (//fun.call(bind[, arg1[, arg2[, ...]]]);//). You can always just call a function and pass arguments (//foo(bar)//).
+
+It's basically similar to //call// or //apply// as it executes the function immediately but the it will be bound to the second argument. If the first argument is an array then the original function will get its elements as arguments, if it is not an array then the function will only get that single argument. It's like a reverse //apply// that accepts anything not only an array.
+
+<code javascript>
+foo.run('hi there'); //same as foo('hi there');
+foo.run('hi there', this); //same as foo.apply(this, ['hi there']);
+//also same as foo.call(this, 'hi there');
+foo.run(['hi', 'there'], this); //same as foo.apply(this, ['hi', 'there']);
+//also same as foo.call(this, 'hi', 'there');
+</code>

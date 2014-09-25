@@ -1,0 +1,59 @@
+====== Fx.Scroll ======
+Here is the [[http://docs.mootools.net/Plugins/Fx/Fx.Scroll|documentation for Fx.Scroll.js]].
+
+Smooth scrolling is pretty easy to manage with the //Fx.Scroll// class. You can scroll elements (like a div or a paragraph that has an overflow and thus a scroll bar) or the window.
+
+Basic syntax:
+<code javascript>
+new Fx.Scroll(element, options)
+</code>
+
+The options are the same as the //[[00-fx|Fx]]// options, and the element is any DOM element or the window (that has an overflow, obviously).
+<html>
+	<div id="scrollExample" style="height: 70px; overflow: auto; width: 300px">
+	1<br>
+	2<br>
+	3<br>
+	4<br>
+	5<br>
+	6<br>
+	7<br>
+	8<br>
+	9<br>
+	10<br>
+	11<br>
+	12<br>
+	13<br>
+	14<br>
+	15<br>
+	16<br>
+	17<br>
+	18<br>
+	19<br>
+	20<br>
+	</div>
+</html>
+<code javascript exec>
+var scrollExample = new Fx.Scroll($('scrollExample'));
+scrollExample.start(0, 120);
+</code>
+<code javascript exec>
+var scrollExample = new Fx.Scroll($('scrollExample'));
+scrollExample.toTop(); //go to the top
+</code>
+<code javascript exec>
+var scrollExample = new Fx.Scroll($('scrollExample'));
+scrollExample.toBottom(); //to the bottom
+</code>
+
+There are also functions //.toRight()//, //.toLeft()//, //.scrollTo(x,y)// and //.toElement()//.
+
+<html><p id="fxScrollWindowExample">Window example:</p></html>
+<code javascript exec>
+var winScroller = new Fx.Scroll(window);
+	/*	scroll to the top	*/
+	winScroller.toTop().chain(function (){
+	/*	then back to here	*/
+	winScroller.toElement('fxScrollWindowExample');
+});
+</code>

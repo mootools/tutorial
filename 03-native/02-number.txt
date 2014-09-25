@@ -1,0 +1,38 @@
+====== Numbers ======
+Here is the [[http://mootools.net/docs/core/Types/Number|documentation for Number.js]].
+
+===== Number.toInt, .toFloat =====
+//Number.toInt()// just returns the number; useful because toInt must work on both Strings and Numbers. Note that if you call //.toInt()// on a float, you'll get an integer back.
+<code javascript exec>
+var x = 10;
+x.toInt(); //returns 10
+</code>
+<code javascript exec>
+var x = 10.01;
+x.toFloat(); //returns 10.01
+</code>
+<code javascript exec>
+var x = 10.01;
+x.toInt(); //returns 10
+</code>
+
+===== Number.limit =====
+<code javascript exec>(12).limit(2, 6.5)  // returns 6.5</code>
+<code javascript exec>(-4).limit(2, 6.5)  // returns 2</code>
+<code javascript exec>(4.3).limit(2, 6.5) // returns 4.3</code>
+
+===== Number.round =====
+Returns the number rounded to specified precision: the number of digits after the decimal point. Can also be negative or zero (default).
+
+<code javascript exec>12.45.round() // returns 12</code>
+<code javascript exec>12.45.round(1) // returns 12.5</code>
+<code javascript exec>12.45.round(-1) // returns 10</code>
+
+
+===== Number.times =====
+Executes a passed in function the specified number of times:
+
+<code javascript exec>(3).times(alert)
+//alert(0)
+//alert(1)
+//alert(2)</code>

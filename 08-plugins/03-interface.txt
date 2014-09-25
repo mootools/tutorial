@@ -1,0 +1,4 @@
+====== Interface Plugins ======
+MooTools includes several classes that automate various UI components. Tips and sortable lists, that sort of thing. Not every web application needs all these things so they're located in the plugins collection.
+
+{{indexmenu>mootorial:08-plugins:03-interface}}

@@ -1,0 +1,42 @@
+===== Cookies =====
+Here is the [[http://docs.mootools.net/Utilities/Cookie|documentation for Cookie.js]].
+
+The //Cookie// object, does pretty much what you'd expect. It has three functions:
+
+===== Cookie.write =====
+
+<code javascript>
+//let's store "example" as "some value" for 10 days
+Cookie.write("example", "some value", {duration: 10});
+</code>
+
+You can set three (optional) options in the 3rd argument:
+<code javascript>
+Cookie.write("example", "some value", {
+	duration: 10, //ten days
+	path: "/some/path", //now my cookie is available to
+	//only content in this path
+	domain: "example.com", //now my cookie is available to any
+	//subdomains of example.com,
+	secure: true //stored cookie information 
+	//can be accessed only from a secure environment
+});
+</code>
+
+===== Cookie.read =====
+
+<code javascript>
+//let's get it now
+Cookie.read("example"); // -> "some value"
+</code>
+
+===== Cookie.dispose =====
+
+<code javascript>
+Cookie.dispose("example"); //delete the cookie
+</code>
+
+===== Deprecated Methods =====
+   * Cookie.get (see //Cookie.read//)
+   * Cookie.set (see //Cookie.write//)
+   * Cookie.remove (see //Cookie.dispose//)

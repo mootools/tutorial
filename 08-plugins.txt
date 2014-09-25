@@ -1,0 +1,8 @@
+====== Plugins ======
+MooTools 1.2 comes in two basic components: the MooTools Core and the MooTools Plugins (also sometimes referred to as "MooTools More").
+
+The "Core" distribution includes everything covered up to this point in the MooTorial ([[01-core|Core]], [[02-class|Class]], [[03-native|Native]], [[04-element|Element]], [[05-utilities|Utilities]], [[06-fx|Fx]], and  [[07-request|Request]]).
+
+The official plugins are things that the development team view as being useful but not necessarily stuff that you'll need in almost every application like you would the Core scripts.
+
+{{indexmenu>mootorial:08-plugins}}

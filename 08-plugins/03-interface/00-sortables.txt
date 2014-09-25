@@ -1,0 +1,83 @@
+====== Sortables ======
+Here is the [[http://docs.mootools.net/Plugins/Sortables|documentation for Sortables.js]].
+
+//Sortables// is another one of those deceptively simple MooTools widgets. It's pretty easy to make something sortable, but to be of any use you have to do something with the new state (like ping a back end server via ajax). It's not the most complex thing to do, but to do it will requires a bit of careful thought and good design principals. I'm not going to spend a lot of time showing you how to do sortables //well//, but rather just demonstrate the code here in its simplest state.
+
+Here's the html:
+<code html>
+<ul id="SortableExample">
+		<li id="1">First</li>
+		<li id="2">Second</li>
+		<li id="3">Third</li>
+</ul>
+</code>
+
+<code javascript exec>
+var mySort = new Sortables($('SortableExample'), {
+	clone: true,
+	opacity: 0.6,
+	onComplete: function(){
+		console.log(mySort.serialize())
+	}
+});
+</code>
+<html>
+<style>
+#SortableExample li { 
+	margin: 2px !important;
+	padding: 2px !important;
+	background: #ccc !important;
+	cursor: pointer;
+}
+</style>
+<ul id="SortableExample">
+		<li id="1">First</li>
+		<li id="2">Second</li>
+		<li id="3">Third</li>
+</ul>
+</html>
+
+===== Sorting across lists =====
+
+New in MooTools 1.2 is the ability to drag and drop items from several lists. Instead of passing in a single list item for the first argument, you give a collection:
+
+
+<code javascript exec>
+var mySort = new Sortables($$('ul.multisort'), {
+	clone: true,
+	opacity: 0.6,
+	onComplete: function(){
+		console.log(mySort.serialize())
+	}
+});
+</code>
+<html>
+<style>
+ul.multisort {
+	float: left;
+	width: 20%;
+}
+ul.multisort  li {
+	margin: 2px !important;
+	padding: 2px !important;
+	background: #ccc !important;
+	cursor: pointer;
+}
+</style>
+<ul id="SortableExample1" class="multisort">
+		<li id="1">First</li>
+		<li id="2">Second</li>
+		<li id="3">Third</li>
+</ul>
+<ul id="SortableExample2" class="multisort">
+		<li id="4">Four</li>
+		<li id="5">Five</li>
+		<li id="6">Six</li>
+</ul>
+<ul id="SortableExample3" class="multisort">
+		<li id="7">Seven</li>
+		<li id="8">Eight</li>
+		<li id="9">Nine</li>
+</ul>
+<br style="clear:both"/>
+</html>

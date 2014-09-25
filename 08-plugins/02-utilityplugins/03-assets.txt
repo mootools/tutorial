@@ -1,0 +1,42 @@
+====== Assets ======
+Assets.js provides on-the-fly loading of images, css, and javascript files. Here is the [[http://docs.mootools.net/Plugins/Assets|documentation for Assets.js]].
+
+===== Assets.javascript =====
+Returns a new script tag with the source and (optional) properties you specify. *Note* that it inserts the tag into the DOM (in the head) for you.
+<code javascript>
+new Asset.javascript('/scripts/myScript.js', {id: 'myScript'})
+//returns element: <script src="/scripts/myScript.js" id="myScript"></script>
+</code>
+
+===== Assets.css =====
+Pretty much the same concept for css as for javascript. *Note* that it inserts the tag into the DOM (in the head) for you.
+<code javascript>
+new Asset.css('/css/myStyle.css', {id: 'myStyle', title: 'myStyle'});
+//returns element: <link id="myStyle" rel="stylesheet" media="screen" type="text/css" href="/css/myStyle.css" title="myStyle">
+</code>
+
+
+
+
+
+===== Assets.image =====
+//Assets.image// is very similar to //Asset.css// or //.javascript//, but its goal is to preload the image, while returning an image HTML element.
+<code javascript>
+new Asset.image('/images/myImage.png', {id: 'myImage', title: 'myImage', load: new myFunction});
+//returns element <img id="myImage" src="/images/myImage.png" onload="myFunction()" title="myImage">
+</code>
+
+Note that this doesn't actually do anything with the returned element, you'll need to use //Element.injectBefore/injectAfter/injectInside/adopt/etc// to put it somewhere:
+
+<html><div id="logoExample"></div></html>
+<code javascript exec>
+new Asset.image('http://www.clientcide.com/wp-content/themes/clientsidev2/art/logo.gif', {'id': 'logoAsset', 'title': 'logo example'}).injectInside('logoExample');
+</code>
+
+
+
+===== Asset.images =====
+Preloads an array of images (as strings) and returns an array of img elements; does not inject them to the page.
+
+<code javascript>var imgs = new Asset.images([urlOne, urlTwo, urlThree]);
+imgs.each(function(img){img.injectInside(document.body)});</code>

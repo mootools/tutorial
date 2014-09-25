@@ -1,0 +1,6 @@
+====== Fx Plugins ======
+
+The MooTools Core has the foundation classes for effects ([[00-fx|Fx and Fx.CSS]], [[01-fx.tween|Fx.Tween]], and [[02-fx.morph|Fx.Morph]]) and using just these you can do a lot of different animations on your site. But the classes in MooTools are designed to be extended and MooTools includes a few extra effects in the plugins.
+
+
+{{indexmenu>mootorial:08-plugins:00-fxplugins}}

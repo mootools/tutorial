@@ -1,0 +1,10 @@
+====== SmoothScroll ======
+Here is the [[http://docs.mootools.net/Plugins/SmoothScroll|documentation for SmoothScroll.js]].
+
+Smooth scrolling auto targets all the anchors in a page (href="#section", etc.) to display a smooth scrolling effect upon clicking them. To enable for a page, all you have to do is include the script and call:
+
+<code javascript>
+new SmoothScroll();
+</code>
+
+You can pass in options (see //[[00-fx|Fx]]//) if you want. This tutorial uses SmoothScroll when you click on the anchor links in the top-right page nav or the "top" links next to headers.

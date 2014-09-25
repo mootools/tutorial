@@ -1,0 +1,295 @@
+====== Arrays ======
+Here is [[http://mootools.net/docs/core/Types/Array|the documentation for Array.js]].
+
+=====Array.each=====
+//Array.each()// iterates through the array executing the specified function for each item in the array. The anonymous function can be passed two arguments (optional) - the item and the index.
+
+//.each()// is really just a pointer to //.forEach//, which MooTools implements for browsers that don't already support it. Here's [[https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/forEach|the documentation at Mozilla on .forEach]].
+
+<code javascript exec>
+["one", "two", "three"].each(function(number){
+  alert(number);
+});
+</code>
+
+<code javascript exec>
+["one", "two", "three"].each(function(number, index){
+  /*let's just alert the first one*/
+  if(index == 0) alert(number); 
+});
+</code>
+
+//.each()// takes an optional second option for binding. This is really useful when your function is in an object:
+
+<code javascript exec>
+var exampleObj = {
+  setNumbers: function(numbers){
+    this.numbers = numbers;
+  },
+  calcNumbers: function(){
+    this.numbers.each(function(number, index){
+      this.numbers[index] = number*2
+    }, this); /*here is the interesting bit*/
+  }
+};
+exampleObj.setNumbers([1,2,3]);
+exampleObj.calcNumbers();
+alert(exampleObj.numbers); //alerts 2,4,6
+</code>
+
+The above example is somewhat convoluted but it demonstrates where and why you use binding this way. If you called //this.timesTwo// inside the //.each(function...// then "this" would refer to the //.each(**function**//, not your //exampleObj//, where //timesTwo// is defined. So with //.each()//, you call a function and you can optionally bind an object to the "this" inside that function.
+
+See [[01-function#function.bind|Function:Bind]] for more details on binding.
+
+=====Array.every=====
+
+//.every()// tests all the elements in an array to see if they pass; returns //true// if they all do, otherwise //false//.
+
+MooTools implements //.every// for browsers that don't already support it. Here's [[https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/every|the documentation at Mozilla on .every]].
+
+<code javascript exec>
+[1,2,3].every(function(num){
+  return $type(num) == "number";
+}); //returns true because 1, 2, and 3 are all numbers
+</code>
+
+<code javascript exec>
+[1,2,'foo'].every(function(num){
+  return $type(num) == "number";
+}); //returns false because 'foo' is not a number
+</code>
+
+===== Array.filter=====
+MooTools implements //.filter()// for browsers that don't already support it. Here's [[https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/filter|the documentation at Mozilla on .filter]].
+
+//Array.filter// calls a provided callback function once for each element in an array, and constructs a new array of all the values for which callback returns a value that evaluates //true//. The callback is invoked only for indexes of the array which have assigned values; it is not invoked for indexes which have been deleted or which have never been assigned values. Array elements which do not pass the callback test are simply skipped, and are not included in the new array.
+
+Callback is invoked with three arguments: the value of the element, the index of the element, and the Array object being traversed.
+
+<code javascript exec>
+function isBigEnough(element, index, array) {
+  return (element >= 10);
+}
+[12, 5, 8, 130, 44].filter(isBigEnough);
+//returns [12, 130, 44]
+</code>
+
+//Array.filter// can take a second argument for binding:
+
+<code javascript exec>
+var exampleObj = {
+  setNumbers: function(numbers){
+    this.numbers = numbers;
+  },
+  filterValue: 10,
+  filterBigEnough: function(){
+    this.numbers = this.numbers.filter(this.isBigEnough, this);
+    /*	the second arg filter() binds this (exampleObj)	*/
+  },
+  isBigEnough: function(element, index, array) {
+    return (element >= this.filterValue); 
+    /*	this has to == exampleObj	*/
+  }
+};
+exampleObj.setNumbers([1,10,100]);
+exampleObj.filterBigEnough();
+console.log(exampleObj.numbers);
+/*	logs [10,100]	*/
+</code>
+
+=====Array.clean=====
+//Array.clean// removes from the array all items that are //null// or //undefined//.
+
+<code javascript exec>
+[0, 3, null, false, true, "foo", ""].clean(); //returns [0, 3, false, true, "foo", ""]
+</code>
+
+=====Array.indexOf=====
+//.indexOf()// finds the first index of an object within an array; returns -1 if no match is found.
+
+MooTools implements //.indexOf// for browsers that don't already support it. Here's [[https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/indexOf|the documentation at Mozilla on .indexOf]].
+
+<code javascript exec>
+['apple','lemon','banana'].indexOf('apple');
+//index is 0
+</code>
+
+Returns -1 if the item is not found.
+
+//.indexOf// can take a second argument as an offset of where to look:
+
+<code javascript exec>
+['apple','lemon','banana'].indexOf('apple',1);
+//index is -1, because apple is not found in indexes >= 1
+</code>
+
+=====Array.map=====
+Applies a function to each item in an array and returns an array with the results of each application.
+
+MooTools implements //.map// for browsers that don't already support it. Here's [[https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/map|the documentation at Mozilla on .map]].
+
+<code javascript exec>
+[1,2,3].map(function(num){
+  return num*2;
+}); //returns [2,4,6];
+</code>
+
+Just like //.each//, //.map// takes an optional binding element as its second input. Also, the function you call in //.map// can take two inputs; the object and its index.
+
+
+<code javascript exec>
+var exampleObj = {
+  setNumbers: function(numbers){
+    this.numbers = numbers;
+  },
+  multiplier: 2,
+  calcNumbers: function(){
+    this.numbers = this.numbers.map(function(number){
+      return number*this.multiplier; 
+      /* note here that we return the result of the calculation
+      also note that we refer to "this", so we need to bind this
+      function	*/
+    }, this); /*here is the interesting bit*/
+    /*.map will execute this on each item in the 
+     array, and then return the entire result set.*/
+  }
+};
+exampleObj.setNumbers([1,2,3]);
+exampleObj.calcNumbers();
+alert(exampleObj.numbers); //alerts 2,4,6
+</code>
+
+
+=====Array.some=====
+//.some()// tests all the elements in an array to see if they pass; returns //true// if //**any**// do, otherwise //false//.
+
+MooTools implements .some for browsers that don't already support it. Here's [[https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/some|the documentation at Mozilla on .some]].
+
+<code javascript exec>
+[1,2,'foo'].some(function(num){
+  return $type(num) == "number";
+}); //returns true because 1 and 2 are numbers, even though 'foo' isn't
+</code>
+
+
+=====Array.associate=====
+<code javascript>
+var Animals = ['Cat', 'Dog', 'Bird', 'Lizard'];
+var Speech = ['Meow', 'Bark', 'Chirp', 'Mute'];
+var Speeches = Animals.associate(Speech); 
+//Speeches['Meow'] is now Cat.
+//Speeches['Bark'] is now Dog.
+//...
+</code>
+
+=====Array.link=====
+This somewhat abstract method helps you map an array of values to an object based on their type. It only works if theres no more than one of each type in the array (so there's no more than one string, or number, etc). It's useful if you want to have a method or function accept different kinds of values in different orders. Here's the example from the MooTools docs:
+
+<code javascript exec>
+var el = document.createElement('div');
+var arr2 = [100, 'Hello', {foo: 'bar'}, el, false];
+arr2.link({myNumber: Number.type, myElement: Element.type, myObject: Object.type, myString: String.type, myBoolean: $defined});
+//returns {myNumber: 100, myElement: el, myObject: {foo: 'bar'}, myString: 'Hello', myBoolean: false}
+</code>
+
+MooTools uses //Array.link// when it wants to create a method that can accept numerous types of values. Rather than pass in //null//s for values you don't wish to specify, you can just leave them out. //Array.link// lets you map the values that were passed in to the appropriate keys.
+
+
+=====Array.contains=====
+**This is a change from MooTools 1.0** - this functionality used to be called //Array.test()//, but is now //Array.contains()//. MooTools 1.1 has the old name (//.test//) mapped to the new one, but it is deprecated, and MooTools 1.2 and beyond will not have this backwards compatibility (you can always add it yourself).
+
+<code javascript exec>
+["a","b","c"].contains("a"); // true
+</code>
+<code javascript exec>
+["a","b","c"].contains("d"); // false
+</code>
+
+=====Array.extend=====
+<code javascript exec>
+var Animals = ['Cat', 'Dog', 'Koala'];
+Animals.extend(['Lizard']); //Animals is now: ['Cat', 'Dog', 'Koala', 'Lizard'];
+</code>
+
+Note that extend does not exclude duplicates:
+<code javascript exec>['Cat','Dog'].extend(['Dog','Koala']); //returns ['Cat','Dog','Dog','Koala']</code>
+
+=====Array.getLast=====
+<code javascript exec>['Cat', 'Dog', 'Bird', 'Lizard'].getLast() //'Lizard'</code>
+
+=====Array.getRandom=====
+Returns a random item from the array:
+
+<code javascript exec>['Cat', 'Dog', 'Bird', 'Lizard'].getRandom()</code>
+
+
+=====Array.include=====
+This works like //Array.combine()// but you pass it a value to add to the array if it's not already present, not an array to merge:
+
+<code javascript exec>['Cat','Dog'].include('Dog'); //returns ['Cat','Dog']</code>
+<code javascript exec>['Cat','Dog'].include('Coala'); //returns ['Cat','Dog','Coala']</code>
+
+=====Array.combine=====  
+This works like //Array.include()// execept that it takes as an argument another array, merging the two and excluding duplicates.
+
+<code javascript exec>
+var animals = ['Cow', 'Pig', 'Dog'];
+animals.combine(['Cat', 'Dog']); //animals = ['Cow', 'Pig', 'Dog', 'Cat'];
+</code>
+
+
+
+
+=====Array.erase=====
+<code javascript exec>
+["1","2","3"].erase("2") // ["1","3"];
+</code>
+
+=====Array.empty=====
+Empties an array of all its values. Basically the equivalent of setting the variable's value to that of a new array.
+
+<code javascript>
+var x = [1,2,3];
+x.empty();
+//same as
+x = [];
+</code>
+
+It's slightly faster and better at preserving memory, but not so much that you'd notice the difference.
+
+=====Array.flatten=====
+This shortcut takes an array of arrays and turns it into a single, flat array.
+
+<code javascript exec>var myArray = [1,2,3,[4,5, [6,7]], [[[8]]]];
+myArray.flatten(); //returns [1,2,3,4,5,6,7,8]</code>
+
+===== Array.rgbToHex =====
+Takes an array with three color values and converts them to an RGB value; mostly used by MooTools to set css color values.
+<code javascript exec>
+[99,100,101].rgbToHex() //returns "#636465"
+</code>
+
+===== Array.hexToRgb =====
+Takes an array with three hexidecimal color values and converts them to an rgb value; mostly used by MooTools to set css color values.
+<code javascript exec>
+['63','64','65'].hexToRgb() //returns "rgb(99,100,101)"
+</code>
+
+=====$A=====
+//$A()// applies these functions to any iterable object. Example:
+
+<code javascript>
+function myFunction(){
+  $A(arguments).each(function(argument){
+    alert(argument);
+  });
+};
+//the above will alert all the arguments passed to the function myFunction.
+</code>
+
+===== Deprecated methods =====
+The following methods are no longer supported in MooTools 1.2
+
+   * Array.copy
+   * Array.remove (see [[#array.erase|Array.erase]])
+   * Array.merge (see [[#array.combine|Array.combine]])

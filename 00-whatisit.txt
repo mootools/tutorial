@@ -1,0 +1,67 @@
+====== Getting Started: What is MooTools? ======
+
+MooTools is a lightweight abstraction layer between the browser and the code you write (this is really the definition of nearly every js framework out there - Prototype, Dojo, jQuery, YUI, etc). It offers more functionality and richer tools for writing javascript, taking what has historically been painful and fraught with buggy environments (the browsers) and presenting you with a much more reliable environment. By adding it to your environment (i.e. including the script in your page) you are able to write succinct, readable, and reusable code more effectively and efficiently than without it.
+
+MooTools at its core re-creates pseudo-classical inheritance with Classes that allow for extensible and reusable behaviors. Additionally, it provides its own set of classes to allow you to quickly and easily describe effects such as resizing, fading, moving, dragging, and more (ajax, json, etc). The code to make something transition from one state to another (fading, moving, resizing, etc.) is very succinct and MooTools does the rest. 
+
+MooTools also provides extensive DOM tools to allow you to select elements from the document, create new elements, and alter them. There are also shortcut helper functions (like $, $type, $chk, $random, etc.) that help you with common tasks.
+
+With MooTools in your environment, you still write Javascript when it comes to basic syntax, but to a great extent you are NOT writing Javascript anymore; you're writing MooTools. The benefit here is that not only is the framework doing a lot of the work (and you don't run into nearly as many cross-browser issues), but if there is a bug or a change because of a new browser release, the framework can be altered without requiring you to rewrite all your code.
+
+These levels of abstraction enable you to write far richer clientside applications.
+
+
+===== Getting Started =====
+Sounds great! So what do I have to do to get started? Well, for starters, you need to know javascript. MooTools isn't something you can just add to your pages and suddenly they come alive. MooTools is a javascript library and it gives you access to all these cool functions, but you still have to tell it what to do.
+
+
+
+
+==== Step 1: Learn Javascript! ====
+There's a nice [[http://blog.mootools.net/2007/6/5/help-i-dont-know-javascript|roundup of Javascript resources]] at the [[http://blog.mootools.net|MooTools Blog]]. I recommend the following strongly:
+
+  * [[http://www.youtube.com/watch?v=v2ifWcnQs6M|Douglas Crockford: The Javascript Programming Language]] - This video is a must-watch. If you're new to javascript or are rusty, start here.
+  * [[http://www.youtube.com/watch?v=DwYPG6vreJg|Dougals Crockford: Advanced Javascript]] - This one is a little less useful but still very informative. Is is less useful because MooTools creates a different kind of environment than Douglas is describing (he talks about native Javascript, and MooTools kind of changes this native environment and so many of his code examples don't apply to MooTools, but you can still learn from them).
+  * [[http://rds.yahoo.com/_ylt=A0WTQ1d1bW1G8iMBoSYCP88F;_ylu=X3oDMTBjMHZkMjZyBHBvcwMxBHNlYwNzcg--/SIG=122e20mkk/EXP=1181662965/**http%3A//video.yahoo.com/video/play%3Fvid=111597|Joe Hewitt presents Firebug]] - this video will introduce you to [[http://getfirebug.com|Firebug]], a must-have debugging tool if you're doing any javascript work (actually, if you're doing any html, css, javascript, ajax, whatever; it's awesome).
+  * [[http://w3schools.com/js/default.asp|w3schools js docs and tutorials]]  - a good place to learn how to use various native functions.
+
+
+
+==== Step 2: Download MooTools ====
+Downloading MooTools is pretty easy. You just go to [[http://www.mootools.net/download|the download page]] and select which portions of the library you want to download. 
+
+I recommend downloading the version that is not compressed and contains the docs for learning and development. This way if you get an error you can view the source and see what's going on. The compressed version is all on a single line and debugging when using it is very frustrating. When you're finished writing your code, download the compressed version, or compress it yourself with [[http://developer.yahoo.com/yui/compressor/]].
+
+
+==== Step 3: Add it to your pages ====
+Just create a <script> tag in the head of your document that points to your copy of MooTools. After this tag add another one that either points to an external file with your own javascript that uses MooTools, or write it inline:
+
+<code html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+  <head profile="http://gmpg.org/xfn/11">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Your title</title>
+    <script type="text/javascript" src="mootools.js"></script>
+    <script type="text/javascript" src="yourSiteCode.js"></script>
+    <script type="text/javascript">
+      //or write some code in-line
+    </script>
+  </head>
+  <body>....</body>
+</html>
+</code>
+
+I prefer to have my code in an external file, but where you put it is up to you.
+
+
+
+
+==== Step 4: Write your code ====
+That's where this Mootorial can help you. If you read these pages (I recommend reading them in order) you should learn how each function and class in MooTools works. Refer to [[http://docs.mootools.net|the docs]] for reference and don't be afraid to look at the source code of MooTools to see how it works.
+
+You need to use things like the [[mootorial:05-utilities:01-domready|domready.js]] event to run your code after the html is loaded and use [[02-class]] to create reusable code. You can also read [[09-howtowriteamootoolsclass|this tutorial on how to write a MooTools Class]].
+
+===== On to the MooTorial =====
+{{indexmenu>:mootorial#1|sort+fn}}

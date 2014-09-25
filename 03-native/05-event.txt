@@ -1,0 +1,74 @@
+====== Events ======
+The Events class is a collection of functions for handling events across browsers. Here is the [[http://mootools.net/docs/core/Types/Event|documentation for Event.js]].
+
+Whenever you add an event to a DOM element (not to be confused with the [[01-class.extras|//Events// class in Class.Extras]]) the argument passed to that function will be the event native. This has been extended like other natives to have additional properties by MooTools. 
+
+===== Properties =====
+<html><dl>
+    <dt>shift</dt>
+    <dd>true if the user pressed the shift</dd>
+    <dt>control</dt>
+    <dd>true if the user pressed the control </dd>
+    <dt>alt</dt>
+    <dd>true if the user pressed the alt</dd>
+    <dt>meta</dt>
+    <dd>true if the user pressed the meta key</dd>
+    <dt>code</dt>
+    <dd>the keycode of the key pressed</dd>
+    <dt>page.x</dt>
+    <dd>the x position of the mouse, relative to the full window</dd>
+    <dt>page.y</dt>
+    <dd>the y position of the mouse, relative to the full window</dd>
+    <dt>client.x</dt>
+    <dd>the x position of the mouse, relative to the viewport</dd>
+    <dt>client.y</dt>
+    <dd>the y position of the mouse, relative to the viewport</dd>
+    <dt>key</dt>
+    <dd>the key pressed as a lowercase string. key also returns 'enter', 'up', 
+    'down', 'left', 'right', 'space', 'backspace', 'delete', 'esc'. Handy 
+    for these special keys.</dd>
+    <dt>target</dt>
+    <dd>the event target</dd>
+    <dt>relatedTarget</dt>
+    <dd>the event related target</dd>
+</dl></html>
+
+<html><input id="eventExample" type="text" value="I'm just here as an example" style="width: 300px"></html>
+
+<code javascript exec>$('eventExample').addEvent('keydown', function(event){
+    console.log(event.key); /*returns the lowercase letter pressed*/
+    console.log(event.shift); /*returns true if the key pressed is shift*/
+    if (event.key == 's' && event.control) console.log('document saved');
+});</code>
+
+
+
+
+===== Event.stop, .preventDefault & .stopPropagation =====
+//Event.stop// will stop an Event from propigating and will also execute //.preventDefault//
+
+//Event.preventDefault// will prevent the default action of the event from completing (for example, clicking a url and executing //.preventDefault// will still execute the onclick event(s) attached to the link, but will NOT follow the link).
+
+//Event.stopPropagation// will execute the default behavior and any events (such as onclick) attached to the element but will not allow the event to bubble up through the DOM (so that if there is an event attached to //document.body.onclick// and the user clicks a link, the link's events will fire, but the event on the //document.body// will not).
+
+===== Event.keys =====
+MooTools defines a handful of key codes but you can add more definitions for special uses. This allows you to add event handlers for those keys:
+
+<code javascript>
+Event.Keys.whatever = 80;
+$(myelement).addEvent(keydown, function(event){
+    if (event.key == 'whatever') console.log(whatever key clicked).
+});
+</code>
+
+By default, MooTools defines the following keys:
+    *enter - 13
+    *up - 38
+    *down - 40
+    *left - 37
+    *right - 39
+    *esc - 27
+    *space - 32
+    *backspace - 8
+    *tab - 9
+    *delete - 46

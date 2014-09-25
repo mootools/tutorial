@@ -1,0 +1,5 @@
+====== Request ======
+
+The Request scripts in MooTools help you manage sending and receiving data to and from servers without refreshing the document (commonly known as Ajax).
+
+{{indexmenu>mootorial:07-request}}

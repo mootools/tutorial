@@ -1,0 +1,108 @@
+====== Color ======
+The //Color// class provides utilities for handling all sorts of color functions in javascript including blending, inverting, setting hue, saturation, and brightness. Here is the [[http://mootools.net/docs/more/Utilities/Color|documentation for Color.js]].
+
+
+===== Constructor =====
+<html><p  id="colorExample">To create an instance of the color class, you need to pass in a color value and a type - either rgb or hsb (hue/saturation/brightness) or hex.</p></html>
+
+<code javascript exec>/*you can use hex values*/
+var black = new Color('#000');
+var white = new Color('#fff');
+/*you can use numerical color values*/
+var purple = new Color([255,0,255]);
+/* mix black with white and purple, each time at 10% of the new color*/
+var darkpurple = black.mix(white, purple, 10);
+$('colorExample').setStyles({
+	'background-color': darkpurple,
+	'color':'#fff'
+});
+</code>
+
+===== Color.mix =====
+As can be seen in the above example, //.mix// combines several colors together. The last argument passed can optionally be an integer, in which case that number will be used for the alpha percentage. If you don't supply this alpha value, the default is 50.
+<html><p id="gray">Let's make this paragraph gray.</p></html>
+<code javascript exec>$('gray').setStyle('background-color', new Color('#fff').mix(new Color('#000')));
+//this mix returns grey: [127, 127, 127]
+</code>
+<html><p id="pink">How about pink?</p></html>
+<code javascript exec>$('pink').setStyle('background-color', new Color('#f00').mix(new Color('#fff'), 90));
+//let's make pink! [255, 229, 229]
+</code>
+
+===== Color.invert =====
+<html><p id="invert">This paragraph will get the color changes in the example below.</p></html>
+<code javascript exec>var headerColor = new Color($('invert').getStyle('color'));
+$('invert').setStyle('color', headerColor.invert());
+</code>
+
+===== Color.setHue =====
+<html><p id="hue">Modify the hue value of a color:</p></html>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setHue(10); /*[255,43,0]*/
+$('hue').setStyle('color', red.rgbToHex());
+</code>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setHue(100); /*[85,255,0]*/
+$('hue').setStyle('color', red.rgbToHex());
+</code>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setHue(0); /*back to [255, 0, 0]*/
+$('hue').setStyle('color', red.rgbToHex());
+</code>
+
+===== Color.setSaturation =====
+<html><p id="saturation">Modify the saturation of a color:</p></html>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setSaturation(10); /*[255, 229, 229]*/
+$('saturation').setStyle('color', red);
+</code>
+<code javascript exec>
+var red = new Color([255,255,255]);
+red = red.setSaturation(80); /*[255, 51, 51]*/
+$('saturation').setStyle('color', red);
+</code>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setSaturation(100); /*back to [255, 0, 0]*/
+$('saturation').setStyle('color', red);
+</code>
+
+===== Color.setBrightness =====
+<html><p id="brightness">Modify the brightness of a color:</p></html>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setBrightness(10); /*[26, 0, 0]*/
+$('brightness').setStyle('color', red);
+</code>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setBrightness(50); /*[128, 0, 0]*/
+$('brightness').setStyle('color', red);
+</code>
+<code javascript exec>
+var red = new Color([255,0,0]);
+red = red.setBrightness(100); /*[255, 0, 0]*/
+$('brightness').setStyle('color', red);
+</code>
+
+
+
+===== Helper functions: $RGB, $HSB =====
+These will take a color value and return an array of color values that can be passed to the //Color// class.
+<code javascript exec>
+console.log($RGB(255,0,0)); /*color: [255,0,0]*/
+console.log($HSB(10,50,50)); /*color: [128, 74, 64]*/
+</code>
+
+===== Array.rgbToHsb, .hsbToRgb =====
+Converts an array with these values into the other.
+<code javascript exec>
+[255,0,0].rgbToHsb() /*0,100,100 hsb*/
+</code>
+<code javascript exec>
+[10,50,50].hsbToRgb() /*128,74,64 rgb*/
+</code>

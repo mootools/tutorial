@@ -1,0 +1,44 @@
+====== DomReady ======
+Here are the docs for [[http://docs.mootools.net/Utilities/DomReady|DomReady.js]].
+
+===== Adding the Event =====
+Functions just like //Element.addEvent//, but adds the possibility to add the custom event 'domready':
+<code javascript>
+window.addEvent('load', function(){...});
+</code>
+<code javascript>
+window.addEvent('domready', function(){...});
+</code>
+<code javascript>
+function myFunction(){...};
+window.addEvent('domready', myFunction);
+</code>
+
+==== domready ====
+This is an important nuance. Whenever you reference items in the DOM (the Document Object Model), they must already be loaded in the browser. If you had some code like this:
+
+<code javascript>
+$$('a').each(function(link){
+  //this is a silly example
+  link.setStyle('color','blue');
+});
+</code>
+
+It won't work unless you execute it after the anchor tags have loaded. So if you put this in the head of your document, this code won't do anything. If you put it in the middle of your doc, you'll catch all the links up to that point.
+
+To get around this you have to execute your code after the page loads. You can use //window.addEvent('load', function(){....init code here...});// but the "load" event waits for //everything// to load - images, css files, whatever.
+
+This is where the event "domready" comes into play. This event fires when the HTML is loaded, even if the other assets (images, etc.) are not. So:
+
+<code javascript>
+window.addEvent('domready', function(){
+  $$('a').each(function(link){
+    //this is a silly example
+    link.setStyle('color','blue');
+  });
+});
+</code>
+
+Will fire as soon as the HTML is ready and all your links will turn blue.
+
+Additionally, if you execute this code //after// the page loads, it'll just execute immediately. This way you don't have to worry about whether or not the page is ready in your code.

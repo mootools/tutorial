@@ -1,0 +1,25 @@
+====== Hash.Cookie ======
+Here are the [[http://docs.mootools.net/Plugins/Hash.Cookie|docs for Hash.Cookie]].
+
+//Hash.Cookie// is a //Hash// that is saved as a cookie value. The only restrictions are that the values cannot be Json incompatible (like a DOM element for example) and that the resulting Json of your values is not greater than the maximum size of a cookie (which is 4kb - 4092 characters). If you attempt to save a value that is greater than this size, the method will return //false// because to save it would overwrite the current value with one greater than the cookie size can be, which would truncate it (and make it no longer parsable Json).
+
+Creating a new instance of a //Hash.Cookie// automatically loads the values from the cookie if present. It is identical to //Hash// except that it has the methods //.save// and //.load//. Additionally, it has all the options that //Cookie// has plus the option //autoSave//, which does what you think it does (defaults to //true//). //Hash.Cookie.empty()// not only empties the content but also removes the cookie.
+
+Also note that its initialize method takes as arguments name and options, but not data (like //Hash//) so you have to add that using //.extend//, //.merge//, or //.set//.
+
+<code javascript exec>
+/*	let's pretend we're saving some user preferences	*/
+var prefs = new Hash.Cookie('userPreferances');
+console.log(prefs.getClean()); /*	let's look at the data in the cookie	*/
+prefs.extend({
+	fontSize: 'big',
+	colors: 'monochrome',
+	bandwidth: 'hi',
+  /*	this will change every time you execute this example	*/
+	date: $time()
+});
+console.log(prefs.getClean()); /*	the data is updated	*/
+</code>
+
+If you execute the block above, the first time the object will be empty (because you don't have a cookie). The second time you'll see the values. The third time, the values will all be the same, but the date value will be more recent.
+time

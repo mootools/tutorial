@@ -1,0 +1,93 @@
+====== Slider ======
+Here is the [[http://docs.mootools.net/Plugins/Slider|documentation for Slider.js]].
+
+Sliders are pretty common interfaces these days and MooTools has the hookup to make these things easily. At its heart, a slider is just a draggable element limited to a plane (horizontal or vertical) that provides data based on the distance it's been moved.
+
+Here's a simple slider (you need to execute the code block below for this to actually be interactive):
+<html><div id="area">
+	<div id="knob"></div>
+</div>
+<p id="upd">XX</p>
+
+<style type="text/css" media="screen">
+	#area {
+	background: #ccc;
+	height: 20px;
+	width: 200px;
+	}
+	#knob {
+	height: 20px;
+	width: 20px;
+	background: #000;
+	cursor:pointer;
+	}
+</style></html>
+<code javascript exec>
+var mySlide = new Slider($('area'), $('knob'), {
+	onChange: function(pos){
+	$('upd').set('html', pos);
+	}
+}).set(0);
+</code>
+
+
+The //Slider// class takes the following options when you instantiate it:
+**Arguments:**
+<html>
+<dl style="margin: 0px; padding:0px;">
+	<dt>element</dt><dd>the knob container</dd>
+	<dt>knob</dt><dd>the handle</dd>
+	<dt>options</dt><dd>see Options below</dd>
+</dl>
+</html>
+**Options:**
+<html>
+<dl style="margin: 0px; padding:0px;">
+	<dt>onChange</dt><dd>a function to fire when the value changes.</dd>
+	<dt>onComplete</dt><dd>a function to fire when you're done dragging.</dd>
+	<dt>onTick</dt><dd>optionally, you can alter the onTick behavior, for example displaying an effect of the knob moving to the desired position. onTick executes the funciton you specify and passes as parameter the new position.</dd>
+	<dt>steps</dt><dd>the number of steps for your slider.</dd>
+	<dt>mode</dt><dd>either 'horizontal' or 'vertical'. defaults to horizontal.</dd>
+</dl>
+</html>
+
+
+
+
+
+==== Slider Example 2 ====
+
+A nicer looking, 10-step slider:
+
+<html>
+<div id="area2">
+	<div id="knob2"></div>
+</div>
+
+<p id="upd2">XX</p>
+
+
+<style type="text/css" media="screen">
+	#area2 {
+	height: 14px;
+	width: 300px;
+	background: url(/wiki/lib/tpl/clientside/images/area.png) no-repeat center center;
+	}
+	
+	#knob2 {
+	height: 15px;
+	width: 15px;
+	background: url(/wiki/lib/tpl/clientside/images/slider.png) no-repeat center center;
+	cursor: pointer;
+	}
+</style>
+</html>
+
+<code javascript exec>
+var mySlide2 = new Slider($('area2'), $('knob2'), {
+	onChange: function(pos){
+		$('upd2').set('html', pos);
+	},
+	steps: 10
+}).set(4);
+</code>

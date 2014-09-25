@@ -1,0 +1,233 @@
+===== Class.Extras =====
+This file contains a few basic functionalities that are useful for many types of classes. You can add the functionality in these extras to any one of your classes easily by using //[[mootorial:02-class#implementing-classes|Class.implement]]//.
+
+[[http://docs.mootools.net/Class/Class.Extras|Here are the docs for Class.Extras.js]]
+==== The Chain Class ====
+Chaining is a pretty clever way to set up a list of functions you want to execute in a given order without actually executing them yet. Then, each time you call the method //.callChain()//, the next function will execute. The //Chain// class can be used as a stand-alone class, but that's not what it's really for. Instead it is designed to be implemented into other classes.
+
+Here's what it looks like on its own:
+
+<code javascript exec>
+var x = new Chain();
+var one = function(){alert('1')};
+var two = function(){alert('2')};
+x.chain(one);
+x.chain(two);
+x.callChain(); /*alert '1'*/
+x.callChain.delay(2000, x); /*wait 2 secs, alert '2'*/
+</code>
+
+Chaining is much more useful when you call //chain// on an executed function, and then subsequent chains will fire automatically as the previous one completes.
+
+<html><div id="chainExample" style="width: 100px; height: 100px; border: 1px solid black"></div></html>
+<code javascript exec>
+var myFx = new Fx.Tween('chainExample');
+myFx.start('opacity', 1, 0).chain(function(){
+	myFx.start('opacity', 0, 1);
+}).chain(function(){
+	myFx.start('opacity', 1, 0);
+}).chain(function(){
+	myFx.start('opacity', 0, 1);
+});
+</code>
+
+In order for this to work, you must implement //Chain// into your own class and call the //.callChain// method within your class when it safe for the next chained step to be called. Here's a simple example that illustrates the concept
+
+<code javascript>
+var Blinker = new Class({
+	Implements: Chain,
+	initialize: function(element){
+		this.element = $(element);
+		this.count = 0;
+	},
+	blink: function(num){
+                if (num) this.count = num;
+		if (this.count) {
+			var currentlyVisible = element.getStyle('visibility') == 'visible');
+			element.setStyle('visibility', currentlyVisible?'hidden':'visible'); //toggle it
+			this.blink.delay(200, this); //put it back
+			this.count--;
+		} else {
+			this.callChain(); //we're done blinking!
+		}
+		return this;
+	}
+});
+
+var myBlinker = new Blinker('myElement');
+myBlinker.blink(10).chain(function(){
+	alert('finished blinking!');
+});
+</code>
+
+Ok, this may be a little hard to grok, so I'll walk you through it. //Chain// contains the member functions //chain// and //callChain// (and also //clearChain//). We use //Implement// to add the functionality of //Chain// to //Blinker//. So now //Blinker// has //.chain// and //.callChain//.
+
+//Blinker// has a method called //.blink// that iterates hiding and unhiding the elemnt. When the number of blinks specified has occurred, it ends the effect and executes //.callChain//. This fires whatever function is next in the chain. So in my example that we started with (the opacity effect up above a bit) I call //.chain// and fade the element to 0 and back to 1, I'm chaining up instructions and as each effect completes the next function gets executed.
+
+==== The Events Class ====
+An "Utility" Class, its methods can be implemented with //Class.implement// into any other Class.
+
+//Events// lets you add custom events to any class you create. An event, by convention, always starts with "on" - like "onComplete" or "onStart". You can have as many events as you like. I like to have events at the ends of things (like a long string of chained logic) and whereever the user can interact with something ("onDrag", "onClose", "onPick").
+
+**In MooTools 1.2, Events starting with 'on' are still supported in all methods and are converted to their representation without 'on' (e.g. 'onComplete' becomes 'complete'). If you reference the 'on' version (i.e. 'onComplete') it will still work, but this is deprecated.**
+
+MooTools implements //Events// into a lot of its classes (these are always defined in the docs). Here's an example using //Fx.Tween//:
+
+<html><div id="eventFxExample" style="width: 100px; height: 100px; border: 1px solid black"></div></html>
+<code javascript exec>
+var myFx = new Fx.Tween('eventFxExample').addEvent('onComplete', function(){
+	alert('the effect is completed');
+}).addEvent('onComplete', function(){
+	alert('I told you the effect is completed');
+});
+
+myFx.start('opacity',0,1);
+/*upon completion it will display the 2 alerts, in order.*/
+
+/*you can add events at any time*/
+myFx.addEvent('onComplete', function(){
+  alert('seriously, it\'s over');
+});
+myFx.start('opacity',0,1);
+</code>
+
+The //Events// class is something you can integrate into your own classes. You can define any event that you want, though typically you'll want to have 'standard' events like:
+
+	* onStart
+	* onComplete
+	* onFailure
+	* onCancel
+	* onStateChange
+	* etc.
+
+Technically, it's not a requirement that it begin with "on", but it's a good practice, and if you use the //Options// class (see below) then you'll have to use "on" as a prefix.
+
+To integrate the //Events// class into your own class, you have to do two things: implement the //Events// class into your class, and pepper your //Class// with calls to the events to fire them.
+
+When you fire an event, it can take three arguments:
+
+	*type - the type of event ("complete", "start", etc.)
+	*args - array of arguments or a single argument
+	*delay - an integer representing the milleseconds to wait before firing the event
+
+Example:
+<code javascript>
+var MyClass = new Class({
+	//tell the class which things to implement
+	//here we include Options and Events
+	Implements: [Options, Events],
+	options: {
+		defaultVal: 'something',
+		onStart: $empty,
+		onComplete: $empty
+	},
+	initialize: function(element, options){
+		this.element = element;
+		this.setOptions(options);
+		this.run();
+	},
+	run: function(){
+//THIS PART IS THE INTERESTING BIT
+		this.fireEvent('onStart', this.element, 10);
+		//..do some things
+		//...now you're done
+		this.fireEvent('onComplete', this.element, 10);
+	}
+});
+</code>
+
+Then, when this class is instantiated, you can pass in functions to execute when the events fire:
+<code javascript>
+var instanceOfMyClass = new MyClass(
+	"ABC",
+	{
+		defaultVal: 'my default val',
+		onStart: function(element){alert('starting with ' + element);},
+		onComplete: function(element){alert('finished with ' + element);}
+	}
+);
+</code>
+
+We can pass more than one argument to an event by using an array:
+
+<code javascript>
+var myClass = new Class({
+	...
+	this.fireEvent('onComplete', [element, 'complete']);
+	...
+});
+...
+function alertStateChange(element, eventName){alert(eventName + ': ' + element);};
+var instanceOfMyClass = new myClass({
+	defaultVal: 'my default val',
+	onStart: alertStateChange,
+	onComplete: alertStateChange
+});
+</code>
+
+
+==== The Options Class ====
+
+You can set the default options of a class by just using //$merge// like so:
+
+<code javascript>
+var myClass = new Class({
+	initialize: function(options){
+	this.options = $merge({
+			elements: [],
+			startIndex: 0
+		}, options || {});
+	}
+});
+</code>
+
+In the above example, I have some default values - //elements// (an empty array) and //startIndex// at zero. If the user instantiates this object thusly:
+
+<code javascript>
+var instanceOfMyClass = new myClass();
+</code>
+
+This instance will have these default values as //this.options.elements// and //this.options.startIndex//. If they instantiate the object this way:
+
+<code javascript>
+var instanceOfMyClass = new myClass({
+	elements: $$('div p'), //all the paragraphs in divs
+	startIndex: 3 //start on the 4th element
+});
+</code>
+...then they will overwrite these defaults.
+
+The //Options// class does this for you:
+<code javascript>
+var myClass = new Class({
+	Implements: Options,
+	options: {
+		elements: [],
+		startIndex: 0
+	},
+	initialize: function(options){
+		/* it doesn't matter if the user passes 
+		   in no value for options */
+		this.setOptions(options);
+	}
+});
+</code>
+
+But wait! There's more! The other thing that the //Options// class does is cycle through all your options looking for any option that begins with "on" and automatically add that event to your class. So if your class, instead, looked like this:
+
+<code javascript>
+var myClass = new Class({
+	Implements: [Options, Events],
+	options: {
+		elements: [],
+		startIndex: 0,
+		onStart: $empty
+	},
+	initialize: function(options){
+		this.setOptions(options);
+		this.fireEvent('start', this.element);
+	}
+});
+</code>
+
+Then there would be an event fired for //start// (or //onStart// - either one) using the //this.fireEvent// function in the Events class. In this example, I set //onStart// to //[[mootorial:01-core#empty|$empty]]//, which is an empty function. This is a very common convention, because then you don't need to worry if the user passes in an //onStart// event; if they don't, the empty function is executed instead.

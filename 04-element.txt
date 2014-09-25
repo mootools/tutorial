@@ -1,0 +1,8 @@
+======= Element Extensions =======
+Here is [[http://docs.mootools.net/Native/Element|the documentation for Element.js]].
+
+The Element object gets a LOT of love in MooTools. Most of the functions in the Element object are pretty self explanatory. //Element.getTag// does what you'd think it would.
+
+Because Element receives so much attention, it's got its own section in the code and it's broken up into four files:
+
+{{indexmenu>mootorial:04-element}}

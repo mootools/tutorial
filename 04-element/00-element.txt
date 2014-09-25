@@ -1,0 +1,542 @@
+======= Element Core =======
+Here is [[http://docs.mootools.net/Native/Element|the documentation for Element.js]].
+
+The Element object gets a LOT of love in MooTools. Most of the functions in the Element object are pretty self explanatory. //Element.getTag// does what you'd think it would.
+
+===== Element Constructor =====
+This just creates a new element object - same as //document.createElement//, but it also applies the MooTools extensions to that element.
+<code javascript>
+var img = new Element("img");
+</code>
+
+//new Element// also lets you set any properties when you create it:
+<code javascript>new Element('a', {
+	styles: {
+		'display': 'block',
+		'border': '1px solid black'
+	},
+	events: {
+		click: function(){
+			//something to do on click
+		},
+		mousedown: function(){
+			//something to do on mousedown
+		}
+	},
+	/*	class must be in quotes; it is a reserved word in IE	*/
+	'class': 'myClassSuperClass',
+	href: 'http://mootools.net'
+});</code>
+
+The key 'styles' will be used as //setStyles//, the key 'events' will be used as //addEvents//. Any other key is used a property with //set//. Note that you don't have to write the keys with quotes ('styles' or 'events' - these can just be {styles: '...', events: '...'} - but **class** DOES have to be in quotes as it's a reserved word in IE.
+
+**Note** that this doesn't insert the element into the DOM, you need to use //Element.adopt, .inject, .wraps,// etc. to put the element into the document:
+
+<code javascript>
+new Element('img', {src: 'http//...'}).inject($(myElement));
+</code>
+
+
+===== $() =====
+<html><p id="getElementByIdExample">
+The $ function has 2 purposes: getting an element by its id, and applying all the elements methods to that element.
+$ can take 2 types of arguments: a string representing the id of an element in the dom, or an element reference:
+</p></html>
+
+<code javascript exec>
+//by a string representing the id of an element:
+var element1 = $('getElementByIdExample');
+
+//by element reference:
+var element2 = $(element1.childNodes[0]);
+</code>
+
+now both element1 and element2 will have the mootools elements extensions applied.
+
+Final Note:
+
+In firefox and other modern browsers such as Safari and Opera, the elements extensions are automatically applied to all the elements in the dom. For the more unfortunate and crippled browsers like Internet Explorer, running the //$// function is mandatory to have the extensions applied.
+
+===== $$() =====
+
+The //$$// (double dollar) function has one big important role in MooTools: transforming a bunch of elements in an instance of the //Elements// class.
+
+//$$// can take **any number** of different types of arguments:
+
+  * element references
+  * arrays of elements ids
+  * native html collections (such as //document.getElementByTagName//, or //element.childNodes//)
+
+**Note:** If you included [[mootorial:05-utilities:00-selectors|Selectors.js]], //$$// can also target elements using a CSS selector.
+
+<code javascript>
+ //all the pre and p tag elements on this page.
+$$('pre', 'p');
+
+//all the pres contained in the element with id=myElement
+var myElement = $('myElement');
+$$(myElement.getElementsByTagName('pre'));
+
+//here we pass in several collections (all either Arrays
+//or instances of Elements)
+var myElements = $$(myElement.childNodes, myElement, ['anotherElementId']);
+</code>
+
+**Note:** the collection returned will be first all the elements matching the first argument, in order, then all the elements that match the second, in order, and so on. If you have alternating pre and p tags, the above example will still return all the pre tags, then all the p tags.
+
+
+
+===== Elements =====
+The //Elements// class is really just an array of elements, but it's been extended to allow you to execute any of the extensions that you could execute on an element. So, for example:
+
+<code javascript exec>
+/* turn all the paragraphs on this page red */
+$$('p').setStyle('color','red');
+/* ok, that's ugly, let's turn it back */
+(function(){$$('p').setStyle('color','#000')}).delay(1000);
+</code>
+
+The same is true for every method listed down below. The //Elements// class can be extended like the //Element// class and every //Elements// object will get the properties. There's a catch though.
+
+**THIS IS IMPORTANT**
+
+When you execute a method on a collection of elements, it will iterate through all the elements and execute that method on each. This is fine when you only need to execute one method, but **if you need to execute more than one method, you should loop through the elements**. Multiple method calls on an //Elements// object will loop through them all each time, and this will be very slow.
+
+So, **this is bad**:
+
+<code javascript>
+$$('p').setStyle('color','red');
+$$('p').effect('opacity').start(0,1);
+//This is the same thing (and also bad):
+$$('p').setStyle('color','red').effect('opacity').start(0,1);
+</code>
+
+In this example, it's far better to use a loop:
+
+<code javascript>
+$$('p').each(function(p){
+  p.setStyle('color','red').effect('opacity').start(0,1);
+});
+</code>
+
+//$$()// returns an instance of the //Elements// class, which is also an array, so it inherits all the methods in the //[[00-array|Array]]// object.
+
+===== Element.set =====
+You can set events, styles and properties with this shortcut; same syntax as the second argument when calling //new Element//. Basically, any native property is available (src, href, value).
+<code javascript>
+$(el).set({events: ..., styles: ..., etc.});
+//which is the same as
+$(el).setStyles({...}).addEvents({...}).etc.
+$(myImg).set('src', newUrl);
+$(myImg).set('alt', 'The cake is a lie');
+</code>
+
+
+===== Element.get =====
+The obverse of //Element.set// is //Element.get//, which retrieves the properties of an element. 
+
+<code javascript>
+$(myImg).get('src'); //http://....
+</code>
+
+**Note** that //Element.get('value')// will return the value of an element, but only that. It won't, for example, return the selected option's value if you do //mySelect.get('value')//, as //value// is not a property of a select list.
+
+===== Custom Setters / Getters =====
+MooTools provides methods to create custom methods used with set. This goes hand in hand with element storage (see the next topic below) and is used to create "built in" instances of //Fx.Tween//, //Fx.Morph//, //Request// and others. To reference these "built in" references you use the storage methods (again, see below), but you can set the options for these things with set and get. For instance, if you want to use the "built in" tween method for an element you would do:
+
+<code javascript>
+$(el).tween('opacity', 0); //fade out
+</code>
+
+If you wanted to set the options for this "built in" method, you would do:
+
+<code javascript>
+$(el).set('tween', {
+	duration: 1000
+});
+</code>
+
+You can define your own "built in" instances and use //set// and //get// to configure them. I won't go into how to do that here, but you can look at the source for //Fx.Tween// to get an idea of how it's done.
+
+==== Default Custom Getters / Setters ====
+Element comes with a few default custom getters. The ones for the effects (like //Fx.Tween// in the example above) are added when you include //Fx.Tween// and are covered elsewhere. But Element.js includes several defaults:
+
+   * html - gets and sets the inner html
+   * text - gets and sets the text value of a node
+   * tag - gets the tag of a node
+   * value - gets the value of an input
+
+===== Element.getSelected =====
+Returns the selected options in a select list (note, it's always an array):
+
+<code javascript>
+$(mySelect).getSelected(); //an array of options that are selected
+</code>
+
+===== Element.toQueryString =====
+Returns a query string of all the key/values for the form elements inside the element (doesn't have to be a form but typically is):
+
+<code javascript>
+$(myForm).toQueryString(); //foo=bar&something=else...
+</code>
+
+
+===== Element Storage =====
+This is probably one of the nicest new features in MooTools 1.2. There's [[http://mootools.net/blog/2008/01/22/whats-new-in-12-element-storage/|a great post about it on the MooTools blog]] that's very instructive. Basically, storage lets you associate something in JavaScript land with a DOM element (or even DOM elements to other DOM elements). It manages all the connections so that you don't have to worry about memory leaks.
+
+This means you can do things like this:
+
+<code javascript>
+$(draggable).store('handle', $(handle));
+$(form).store('validator', new FormValidator());
+$(thumbnail).store('fullSizeImage', $(someImage));
+</code>
+
+Previously, when writing code that had a collection of dom elements related to other things, you had to maintain arrays and keep track of the indexes. All the slides in a slideshow related to all their thumbnails, but that meant you had an array of thumbnails and an array of slides. Now you can simplify this greatly.
+
+It also means that you can easily find a class from the element(s) it manages and vice versa. I can do:
+
+<code javascript>
+var myForm = $('myForm');
+myForm.store('validator', myValidator);
+myForm.retrieve('validator'); //get the validator from the form
+myValidator.form; //and the form from the validator
+</code>
+
+There's more to it than this of course but you get the idea. It's very convenient.
+
+MooTools uses this functionality to store "built in" instances of classes. For example, Fx.Tween:
+
+<code javascript>
+$(el).tween('opacity', 0); //fade out
+</code>
+
+If you were to use //.tween// to fade back in later, MooTools just retrieves the same instance and fades back in.
+
+===== Element.inject =====
+Pretty much what it looks like. Injects the element relative to the one passed in as an argument.
+
+<code html>
+html:
+<div id="myElement"></div>
+<div id="mySecondElement"></div>
+<script>$('mySecondElement').inject('myElement', 'before');</script>
+resulting html:
+<div id="mySecondElement"></div>
+<div id="myElement"></div>
+</code>
+
+//.inject// is basically //.appendChild// on the passed in element:
+<code html>
+html:
+<div id="myElement"></div>
+<div id="mySecondElement"></div>
+<script>$('mySecondElement').inject('myElement');</script>
+resulting html:
+<div id="myElement"><div id="mySecondElement"></div></div>
+</code>
+
+//.inject::top//:
+<code html>
+html:
+<div id="myElement">
+	<div id="childOne"></div>
+	<div id="childTwo"></div>
+	<div id="childThree"></div>
+</div>
+<script>$('childTwo').inject('myElement', 'top');</script>
+resulting html:
+<div id="myElement">
+	<div id="childTwo"></div>
+	<div id="childOne"></div>
+	<div id="childThree"></div>
+</div>
+</code>
+
+===== Element.dispose =====
+Removes the element from the DOM:
+<code javascript><div id="myElement">
+	<div id="childOne"></div>
+	<div id="childTwo"></div>
+	<div id="childThree"></div>
+</div>
+<script>$('childTwo').dispose();</script>
+resulting html:
+<div id="myElement">
+	<div id="childOne"></div>
+	<div id="childThree"></div>
+</div></code>
+
+Note that disposed elements can still be referenced and even inserted back into the DOM:
+
+<code javascript>
+var child2 = $('childTwo');
+child2.dispose();
+//...later
+child2.inject('someNewParent');
+</code>
+
+===== Element.destroy =====
+This is the same as Element.dispose, except it removes the element from memory so that it can no longer be referenced or re-injected into the DOM.
+
+
+===== Element.clone =====
+Clones the //Element// and returns the copy:
+
+<code javascript>
+var clone = $('myElement').clone().inject('myElement');
+//clones the Element and append the clone after the Element.
+</code>
+
+//Element.clone// takes two arguments (both //boolean//s): //true// for the first one will clone the node's children (this is the default), //false// will only clone the node, and the second argument will keep the element's ID, otherwise the cloned node is returned without one (this is because it is not legal HTML to have to Elements in the DOM w/ the same ID):
+
+<code javascript><div id="myElement">
+	<div id="childOne"></div>
+	<div id="childTwo"></div>
+	<div id="childThree"></div>
+</div>
+<script>$('myElement').clone(false, true).inject('myElement');</script>
+resulting html:
+<div id="myElement">
+	<div id="childOne"></div>
+	<div id="childTwo"></div>
+	<div id="childThree"></div>
+</div>
+<div id="myElement"></div>
+</code>
+
+
+===== Element.adopt =====
+This is just like //.inject//, but in reverse (it appends the supplied element to the applied one). Note that //adopt// can take more than one element to adopt (//Element.adopt(child1, child2, etc)//):
+<code html>
+html:
+<div id="myElement"></div>
+<div id="mySecondElement"></div>
+<script>$('mySecondElement').adopt('myElement');</script>
+resulting html:
+<div id="mySecondElement"><div id="myElement"></div></div>
+</code>
+
+===== Element.wraps =====
+//wraps// will move the element from its current location and insert it as the new parent of the wrapped element.
+
+
+<code html>
+	<div id="child"></div>
+	<hr/>
+	<div id="newParent"></div>
+</code>
+
+<code javascript>
+$('newParent').wraps('child');
+</code>
+
+result:
+<code html>
+	<div id="newParent">
+		<div id="child"></div>
+	</div>
+	<hr/>
+</code>
+
+===== Element.grab =====
+Sorta like //wraps//, except that //grab// moves the child into the parent. This is identical to //adopt//, but //adopt// allows you to pass it more than one element.
+
+<code html>
+	<div id="child"></div>
+	<hr/>
+	<div id="newParent"></div>
+</code>
+
+<code javascript>
+$('newParent').grab('child');
+</code>
+
+result:
+<code html>
+	<hr/>
+	<div id="newParent">
+		<div id="child"></div>
+	</div>
+</code>
+
+
+===== Element.replaces =====
+<code javascript>
+$('myNewElement').replaces($('myOldElement')); 
+</code>
+//$('myOldElement')// is gone, and //$('myNewElement')// is in its place.
+
+
+===== Element.appendText =====
+<code html>
+<div id="myElement">hey</div>
+<script>
+	$('myElement').appendText(' howdy'); 
+	//myElement innerHTML is now "hey howdy"
+</script>
+</code>
+
+
+===== Element.addClass, .removeClass, .hasClass, .toggleClass =====
+These do pretty much what they look like they'd do.
+
+<html><p id="cssClassesExample">This paragraph has id = cssClassesExample for the examples below.</p></html>
+<code javascript exec>
+/*does the paragraph above have the className blue?*/
+$('cssClassesExample').hasClass('blue');
+</code>
+<code javascript exec>
+/*let's add it*/
+$('cssClassesExample').addClass('blue');
+</code>
+<code javascript exec>
+/*now let's remove it*/
+$('cssClassesExample').removeClass('blue');
+</code>
+<code javascript exec>
+/*now let's toggle it on and off*/
+$('cssClassesExample').toggleClass('blue');
+</code>
+
+===== Element.match =====
+Returns true of the passed in selector would include the element.
+
+<code javascript>
+$(el).match('div'); //returns true if el is a div
+//if you have Selectors.js included
+$(el).match('div#someId p.someClass'); //true of el matches
+</code>
+
+===== Element.getProperties, removeProperty, removeProperties =====
+<code javascript exec>
+	/*fetch info about the log on this page*/
+	$E('img').getProperties('alt', 'src', 'id');
+	//returns {alt: 'a cnet developer blog', src:'http//clienside...', id: 'redball'}
+</code>
+<code javascript exec>
+	$E('img').removeProperty('alt');//img no longer has alt value
+	//you can use removeProperties to remove more than one at a time.
+</code>
+
+===== Element.set('html') =====
+MooTools 1.1 had //Element.setHTML// but now uses //Element.set('html', newHtml)//:
+
+<html><p id="setHTMLExample">Let's change this content...</p></html>
+<code javascript exec>
+$('setHTMLExample').set('html', 'see? changed!');
+</code>
+You might ask yourself why use this or even something like //.get// when javascript has methods to do this on it's own; we're just swapping one syntax for another. You could just as easily do:
+<code javascript>
+$('setHTMLExample').innerHTML = 'see? changed!';
+</code>
+So why do it? Well, by making this function available you can do things like call //.delay// and //.pass// in more complex applications. It also allows for chaining things together like so:
+
+<code javascript>
+$('myExample').set('example').addClass('something').removeClass('somethingElse').addEvent(....) etc.
+</code>
+
+It also helps protect us from browser inconsistencies.
+
+===== Element.get('tag') =====
+<code javascript exec>
+$('redball').get('tag') // returns 'img'
+</code>
+
+===== Element.getNext, .getPrevious, .getFirst, .getLast =====
+These all get neighboring elements relative to the one you apply this method do.
+
+Here's the html in the example below:
+<code html>
+<ul id="getSiblingExamples">
+	<li id="firstLI">first</li>
+	<li id="secondLI">second</li>
+	<li id="thirdLI">third</li>
+</ul>
+</code>
+
+<html><ul id="getSiblingExamples">
+	<li id="firstLI">first</li>
+	<li id="secondLI">second</li>
+	<li id="thirdLI">third</li>
+</ul></html>
+<code javascript exec>
+$('secondLI').getNext(); //third li
+</code>
+<code javascript exec>
+$('secondLI').getPrevious(); //first li
+</code>
+<code javascript exec>
+$('getSiblingExamples').getFirst(); //first li
+</code>
+<code javascript exec>
+$('getSiblingExamples').getLast(); //third li
+</code>
+
+All of these methods can take selectors, too:
+
+<code html>
+<div id="getSiblingExample2">
+	<p id="firstSibling">first</p>
+	<div id="secondSibling">second</div>
+	<b id="thirdSibling">third</b>
+</div>
+</code>
+<html><div id="getSiblingExample2">
+	<p id="firstSibling">first</p>
+	<div id="secondSibling">second</div>
+	<b id="thirdSibling">third</b>
+</div></html>
+
+<code javascript exec>
+$('firstSibling').getNext('b'); //b#thirdSibling
+</code>
+
+===== Element.getParent, .getChildren =====
+//.getParent// is really just a wrapper for //$(element.parentNode);// which returns the parent node with all the MooTools element extensions applied to it. //.getChildren// is the same as //element.childNodes//, with each also wrapped with the MooTools element extensions.
+
+<code javascript exec>
+$('secondLI').getParent() //gets ul element
+</code>
+<code javascript exec>
+$('getSiblingExamples').getChildren() //gets all the list items
+</code>
+
+However, you can also specify a selector when you use these methods which will return only those that match. When used with //getParent// the element's parent will be inspected for a match on the selector, and if it doesn't match, then the element's parent's parent will be inspected and so on up the dom. For children, only direct children will be inspected.
+
+<code javascript exec>
+$('secondLI').getParent('div') //get the first parent that's a div
+</code>
+<code javascript exec>
+$('getSiblingExample2').getChildren('b'); //only the bold tags
+</code>
+
+===== Element.getElements, .getElement =====
+//Element.getElements// gets all the decendents of an element (so, not just the immediate children). You can pass in a selector to filter the group.
+
+<code javascript exec>$('leftCol').getElements('p');</code>
+
+The filter can be any css expression when you include //Selectors.js//, just like //$$//.
+
+//Element.getElement// just returns the first item found.
+
+===== Element.hasChild =====
+
+<code javascript><div id="myElement">
+	<div id="childOne"></div>
+	<div id="childTwo"></div>
+	<div id="childThree"></div>
+</div>
+<script>$('myElement').hasChild('childOne');//true</script>
+</code>
+
+
+===== Deprecated Methods =====
+The following element methods are deprecated:
+
+   * Element.remove (see //Element.dispose//)
+   * Element.getValue (see //Element.get('value')//)
+   * Element.getHTML/setHTML (see //Element.get('html')// and //Element.set('html')//)
+   * Element.replaceWith (see //Element.replaces//)
+   * Element.setOpacity (see //Element.setStyle//)
+   * Element.getTag (see //Element.get('tag')//)

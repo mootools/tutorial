@@ -1,0 +1,96 @@
+====== Selectors ======
+Selectors let you find elements in the DOM using CSS paths. Note that //$$// is defined in [[00-element|Element.js]], but it only lets you get elements by tag name.
+
+
+
+
+===== $$ =====
+//[[00-element#section1|$$]]// is defined in [[00-element|Element.js]], but when you include Element.Selectors.js, it becomes much more useful; you'll use it a LOT.
+
+With Element.Selectors.js you can pass this selector any css style selector and it will return all the matching elements. The more specific you are, the faster the selection. Note that selecting items from a very large document can be CPU intensive.
+
+<code javascript>$$('div'); //all the divs on the page
+$$('div.myclass'); //all the divs on the page with the class 'myclass'
+$$('#myElement div') //all the divs in $('myElement')
+$$('div#myElement div') //the same, but faster because the type
+//of input of myElement is defined
+$$('div p a'); //all anchors in paragraphs in divs</code>
+
+You get the idea. The result should be stored if you're going to use it more than once so that the search is only performed once:
+
+<code javascript>
+var clickers = $$('div#section a.clicker');
+clickers.each(function(link) {.....});
+//later something else...
+clickers.filter(function(link) {.....});
+//etc.
+</code>
+
+Be sure to read up on //[[00-element#section1|$$]]// as it's main function is creating instances of //Elements// and applying the MooTools extensions in the //Element// class to DOM elements.
+
+===== Selecting on attributes =====
+
+Selectors.js allows you to also search for elements with specific attributes. For example:
+
+<code javascript>
+//Returns all input tags with name "dialog".
+$('myElement').getElements('input[name=dialog]');
+ 
+//Returns all input tags with names ending with 'log'.
+$('myElement').getElements('input[name$=log]');
+ 
+//Returns all email links (starting with "mailto:").
+$('myElement').getElements('a[href^=mailto:]');
+</code>
+
+The operands you can use in these instructions are:
+
+    * = : is equal to
+    * ^= : starts-with
+    * $= : ends-with
+    * != : is not equal to
+
+===== Element.getElements, .getElement =====
+//Element.getElements// applies a filter on the collection:
+
+<code javascript exec>$('leftCol').getElements('li.level1');</code>
+
+The filter can be any css expression, just like //$$//.
+
+//Element.getElement// just returns the first item found.
+
+You can also pass in more than one:
+
+<code javascript exec>
+$('leftCol').getElements('li.level1, li.level2');
+</code>
+
+This will return all the items that match the first selection, in order, followed by all the items that match the next one, and so on.
+
+===== Selectors =====
+
+In addition to specifying css selectors (like 'p.someClass'), you can also use psuedo-selectors that MooTools includes.
+
+==== enabled ====
+Gets all the form inputs inside a DOM element that are not disabled.
+
+<code javascript>$$('*:enabled'); //all the enabled inputs
+$('myElement').getElements(':enabled'); //only the enabled inputs inside #myElement</code>
+
+==== empty ====
+Returns only the empty nodes.
+<code javascript exec>$$('a:empty'); //all the empty anchor tags</code>
+
+==== contains ====
+Returns only the nodes that specifically contain text:
+
+<code javascript exec>$$('p:contains("specifically")');
+//the paragraph above</code>
+
+
+===== Deprecated Methods =====
+   * $E (use document.getElement)
+   * $ES (see //Element.getElement//)
+   * Element.getElementsBySelector (see //Element.getElements//)
+   * Element.getElementsByClassName (see //Element.getElements//)
+   * Element.getElementById (see //Element.getElement//)

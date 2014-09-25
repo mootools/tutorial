@@ -1,0 +1,99 @@
+====== Element.Events ======
+Managing events is super easy with MooTools. You can add, remove, and clone them and it's fairly straightforward.
+
+
+
+
+===== Element.addEvent, addEvents =====
+Note that the event name you give it ("click" or "mouseover") doesn't have the "on" prefix. 
+<html><p id="addEventExample">this paragraph is used for the examples below</p></html>
+<code javascript exec>
+$('addEventExample').addEvent('click', function() {
+	alert('click!');
+});
+</code>
+Why use this instead of just doing //$('addEventExample').onclick = alert('click');// ? Well, using event listeners like this allows you to have more than one. If you do //.onclick = myFunction()// then you can only have one event watching that click. Click might not be a great example there, but certainly something like //window.onload// is something you might want to have numerous events monitoring.
+
+//Element.addEvents// is the same only the argument is an object:
+<code javascript exec>
+$('addEventExample').addEvents({
+	mouseover: function() {this.setStyle('color','#f00')},
+	mouseout: function() {this.setStyle('color','#000')}
+});
+</code>
+
+The only argument passed to the argument you define is the event object, which you can inspect and/or stop. There's more on [[05-event|the native Event class page]], including examples.
+
+===== Element.removeEvent, removeEvents =====
+You can also use //Element.removeEvent// to remove an event listener. //.removeEvents// will remove all the events on an element. For //removeEvent// you must pass in the function that you passed in when you added the event. This means you can't use anonymous functions:
+
+<code javascript>
+$(el).addEvent('click', function(){alert('clicked!')});
+//this won't work:
+$(el).removeEvent('click', function(){alert('clicked!')});
+
+//instead
+var sayClicked = function(){alert('clicked')};
+$(el).addEvent('click', sayClicked);
+$(el).removeEvent('click', sayClicked);
+</code>
+
+===== Element.fireEvent =====
+<html><p id="fireEventExample">Fires the specified event on an element. For instance, if you set up an event for clicking an element, you can execute that even if the user doesn't click it:</p></html>
+<code javascript exec>
+$('fireEventExample').addEvent('click', function(){alert('click!')});
+$('fireEventExample').fireEvent('click'); //alerts 'click!'
+</code>
+
+===== Element.cloneEvents =====
+//Element.clone// does not clone the events associated with that element. It's not that often that you want to do this, but if you need to, //.cloneEvents// will do the trick:
+
+<code javascript>$(new).cloneEvents(old); //copies the events from old to new
+$(new).cloneEvents(old, 'click');//copies only the click events from old to new</code>
+
+===== Custom Events =====
+MooTools 1.1 adds the concept of custom events. These are events that are fired when a set of conditions that you code occur. A good example of this is //window.addEvent('domready'..//. domready is not a browser defined event; it is an event that MooTools defines.
+
+Adding a custom event is pretty easy. Here's the custom event for "mouseenter":
+
+<code javascript>
+Element.Events.extend({
+	'mouseenter': {
+		type: 'mouseover',
+		map: function(event){
+			event = new Event(event);
+			if (event.relatedTarget == this || this.hasChild(event.relatedTarget)) return;
+			this.fireEvent('mouseenter', event);
+		}
+	}
+});
+</code>
+
+The "type" specifies when the event should be tested. In this case, the event defined in the "map" method is tested anytime the //mouseover// event occurs for the element. The function is tested to see if the relative target for the mouseover event is the current element or one of its children and, if not, it fires mouseenter.
+
+MooTools defines, by default, 4 custom events: //mouseenter, mouseleave, mousewheel,// and [[01-domready|//domready//]].
+
+
+===== Function.bindWithEvent =====
+With //bindWithEvent// you'll get the mootools //Event// wrapper as the first argument:
+
+<code javascript>
+function fn(event){
+  //event is the mootools event, that supports all the cool stuff like
+  event.page.y //position of the mouse in the page
+  event.key //the key pressed
+  event.shift //if shift has been pressed to trigger the event
+  //and tons of others, refer to the docs, Native/Event.js
+  //the keyword this is the element, because we used element in the bindWithEvent argument.
+};
+element.onclick = fn.bindWithEvent(element);
+</code>
+
+Basically bind //withEvent// will do this automatically for you:
+
+<code javascript>
+function fn(event){
+    event = new Event(event);
+};
+element.onclick = fn;
+</code>

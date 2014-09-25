@@ -1,0 +1,90 @@
+====== Element.Dimensions ======
+This file contains all the logic needed to figure out the size of things and a few helpers like //.scrollTo//.
+
+
+===== Element.scrollTo =====
+Scrolls an element to the coordinates you specify; note that this isn't a smooth transition; it just jumps to that location.
+<html>
+	<div id="scrollExample" style="height: 70px; overflow: auto; width: 300px">
+	1<br>
+	2<br>
+	3<br>
+	4<br>
+	5<br>
+	6<br>
+	7<br>
+	8<br>
+	9<br>
+	10<br>
+	11<br>
+	12<br>
+	13<br>
+	14<br>
+	15<br>
+	16<br>
+	17<br>
+	18<br>
+	19<br>
+	20<br>
+	</div>
+</html>
+<code javascript exec>$('scrollExample').scrollTo(0, 30); //jump 30px down</code>
+
+===== Element.getSize =====
+<html><p  id="getSizeExample">Returns an object with x/y definitions for size (width/height).</p></html>
+<code javascript exec>
+$('getSizeExample').getSize();
+//returns something like:
+//{
+//	x=660,
+//  y=44
+//}
+</code>
+
+===== Element.getScrollSize =====
+Returns an object with x/y definitions for scroll size (the total width/height that an element can scroll).
+<code javascript exec>
+$('scrollExample').getSize();
+//returns something like:
+//{
+//	x=660,
+//  y=44
+//}
+</code>
+
+===== Element.getScroll =====
+Returns an object with x/y definitions for scroll position (the scroll offset for the top and left).
+<code javascript exec>
+$('scrollExample').getScroll();
+//returns something like:
+//{
+//	x=0,
+//  y=20 (whatever the scroll offset is above)
+//}
+</code>
+
+
+===== Element.getPosition =====
+<html><p id="positionExample">Returns an object with the offsetLeft and offsetTop as x and y properties:</p></html>
+<code javascript exec>
+$('positionExample').getPosition();
+//returns something like {x:20, y:570} 
+</code>
+
+===== Element.getCoordinates =====
+<html><p id="getCoordinatesExample">Returns an object with definitions for width, height, left and top:</p></html>
+<code javascript exec>
+$('getCoordinatesExample').getCoordinates ();
+//returns something like:
+//{
+//	width:660,
+//	height:37,
+//	left:20,
+//	right:680,
+//	top:13033
+//}
+</code>
+
+===== Deprecated Methods =====
+   * //Element.getSize// previously returned an object with scroll, size, and scroll position, so this has changed dramatically
+	 * //Element.getTop// and //getLeft// are replaced by //Element.getPosition//

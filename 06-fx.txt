@@ -1,0 +1,4 @@
+====== Effects ======
+The //Fx// object contains a family of classes all related to managing transitions. At its heart, //Fx.*// lets you transition the properties of an element or several elements from one state to another across a duration you specify using a transition of your choice. Examples are always better to figure this stuff out, so let's just dive right in.
+
+{{indexmenu>mootorial:06-fx}}

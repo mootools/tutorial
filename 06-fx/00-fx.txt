@@ -1,0 +1,80 @@
+====== Fx and Fx.CSS ======
+The MooTools library includes two foundation classes used for Fx extensions: Fx and Fx.CSS.
+
+===== Fx =====
+Here is the [[http://docs.mootools.net/Fx/Fx|documentation for Fx.js]].
+
+The //Fx// class is the heart of all the //Fx// classes and it's rather basic. It's not something you'll be using directly, but whenever you want to author a new effect, you might want to extend the //Fx// class (thought it's much more likely that you'll extend //[[01-fx.tween|Fx.Tween]]// or //[[02-fx.morph|Fx.Morph]]//. I won't go into a lot of detail on its functions and properties; if you want to write your own //Fx// class, look at the code, and look at how the other //Fx.*// classes use it.
+
+Briefly, the Fx class contains the following functions and properties that you'll typically reference and interact with whenever you use a class based on it.
+<html><dl>
+	<dt>Options:</dt>
+	<dd>
+	<dl style="padding: 0px; margin:0px;">
+		<dt>transition</dt>
+		<dd>The transition effect to use; see [[03-fx.transition|Fx.Transition]] for details.</dd>
+		<dt>duration</dt>
+		<dd>The duration of the effect (in milliseconds); can also be one of:
+			<ul style="margin-bottom: 0px; padding-bottom: 0px;">
+				<li>'short'  - 250ms</li>
+				<li>'normal' - 500ms</li>
+				<li>'long'   - 1000ms</li>
+			</ul>
+		</dd>
+		<dt>unit</dt>
+		<dd>Defaults to "px"; other options include "em" for fonts and "%"</dd>
+		<dt>link</dt>
+		<dd>
+			<ul style="margin-bottom: 0px; padding-bottom: 0px;">
+				 <li>'ignore' - Any calls made to start while the effect is running will be ignored. (Synonymous with 'wait': true from 1.x)</li>
+					<li>'cancel' - Any calls made to start while the effect is running will take precedence over the currently running transition. The new transition will start immediately, canceling the one that is currently running. (Synonymous with 'wait': false from 1.x)</li>
+					<li>'chain'  - Any calls made to start while the effect is running will be chained up, and will take place as soon as the current effect has finished, one after another.</li>
+			</ul>
+
+		</dd>
+		<dt>fps</dt>
+		<dd>the frames per second for the transition; default is 30</dd>
+	</dl>
+	</dd>
+	<dt>Events</dt>
+	<dd>
+	<dl style="padding: 0px; margin:0px;">
+		<dt>start/complete/cancel</dt>
+		<dd>Define functions to execute when the effect begins, ends, or is interrupted.</dd>
+		<dt>chainComplete</dt>
+		<dd>Define a function to execute when the effect chain completes.</dd>
+	</dl>
+	</dd>
+	<dt>Methods</dt>
+	<dd>
+	<dl style="padding: 0px; margin:0px;">
+		<dt>set()</dt>
+		<dd>Jumps to the value you specify; for instance, if you have an effect for width, you can call //set(100)// and the width of the element will be immediately set to 100 without a transition.</dd>
+		<dt>start(from, to)</dt>
+		<dd>Note that from is optional. //.start()// is what you call to actually execute the effect, and you pass it the start and end values to transition from and to respectively. If you only pass in one value, the current state of the object will be used (i.e. if you called //.start(100)// on an Fx object that managed width, it would transition the element to 100px wide from whatever width it was at).</dd>
+		<dt>cancel()</dt>
+		<dd>Stops an effect transition at whatever point it's at currently.</dd>
+		<dt>pause() & resume()</dt>
+		<dd>This pauses an effect temporarily and allows you to resume it later.</dd>
+	</dl>
+	</dd>
+</dl>
+</html>
+
+I know that's not very helpful, but again, this is just the foundation class, all the fun stuff starts with the helper classes that implement Fx.
+
+==== Fx Chaining ====
+
+New in MooTools 1.2 is the ability to link the Fx chain so that you can do this:
+
+<code javascript exec>
+new Fx.Tween('fxTarget', {
+	property: 'width',
+	link:'chain'
+}).start(100).start(0).start(100);
+</code>
+
+The result is that each instruction will wait for the previous one.
+
+===== Fx.CSS =====
+Sorry, I'm not going to go into Fx.CSS much either. It's used by Fx.Tween, Fx.Morph, Fx.Elements to parse css properties. It's worth mentioning here in the same way that Fx is; your classes may want to make use of it. Rather than try and demonstrate this core functionality here, I'll instead recommend that if writing such classes are something you think you're up to, dig into Fx.Tween, Fx.Morph, and Fx.Elements to see how it's used internally.

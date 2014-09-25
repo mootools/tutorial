@@ -1,0 +1,14 @@
+==== Browser Detection ====
+//Browser.js// in //Core// includes a browser detection variables added to the //Browser// hash object. For the most part, MooTools smooths over the differences between browsers and you shouldn't find yourself needing to reference these variables very often. However, there are times when you need to know, and MooTools provides.
+
+There's not a lot to describe here other than these things exist and you can use them in your code. For exampe, let's say you wanted to work around some IE6 bug:
+
+<code javascript>
+...
+if (Browser.Engine.trident4) //...do something for IE6
+else if (Browser.Engine.trident) //...do something for all other version of IE
+else //...everyone else gets some standard behavior
+...
+</code>
+
+You can find all the //Browser// properties [[http://docs.mootools.net/Core/Browser|in the docs]].

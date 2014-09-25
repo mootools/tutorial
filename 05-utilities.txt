@@ -1,0 +1,4 @@
+====== Utilities ======
+MooTools has a group of classes and helpers that are hard to do without that fit somewhere between the classes that do things (like the effects) and the native extentions covered previously. It's hard to get by without these utilities though, so they're included in the core build of MooTools.
+
+{{indexmenu>mootorial:05-utilities}}

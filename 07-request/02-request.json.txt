@@ -1,0 +1,32 @@
+====== Request.JSON.js ======
+Here is the [[http://docs.mootools.net/Request/Request.JSON|documentation for Request.JSON.js]].
+
+//Request.JSON// is a wrapper class for //XHR// to handle automated sending and receiving of Javascript Objects in Json Format.
+
+Basic Syntax:
+<code javascript>
+var myJsonRequest = new Request.JSON(url, options)
+</code>
+
+I can't really demonstrate what this does in this tutorial, but here's an example of what you might do with it:
+
+<code javascript>
+var jSonRequest = new Request.JSON({url: 'http://site.com/tellMeAge.php', onComplete: function(person){
+	alert(person.age); //is 25 years
+	alert(person.height); //is 170 cm
+	alert(person.weight); //is 120 kg
+}}).send({'name': 'John', 'lastName': 'Doe'});
+</code>
+
+In the example above, we send "John Doe" to our tellMeAge.php which presumably looks up some information about that person and returns it in a Json format that looks something like:
+<code javascript>
+{
+	"age": "25 years",
+	"height": "170 cm",
+	"weight": "120 kg",
+	"name": "John",
+	"lastName": "Doe"
+}
+</code>
+
+Note that the //Request.JSON// class's //.send// method that takes a JavaScript object.
